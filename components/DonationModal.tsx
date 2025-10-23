@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { transactionController, userController } from '../controller';
+import { transactionController } from '../controller';
 import '../styles/modal.css';
 
 interface DonationModalProps {
