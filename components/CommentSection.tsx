@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { commentController, userController } from '../controller';
 import { Comment } from '../model';
 import '../styles/forms.css';
@@ -16,16 +16,16 @@ export default function CommentSection({ postId, currentUserFid, showComments, o
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
 
-  const loadComments = () => {
+  const loadComments = useCallback(() => {
     const postComments = commentController.getCommentsByPost(postId);
     setComments(postComments);
-  };
+  }, [postId]);
 
   useEffect(() => {
     if (showComments) {
       loadComments();
     }
-  }, [showComments, postId]);
+  }, [showComments, loadComments]);
 
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
