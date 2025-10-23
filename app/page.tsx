@@ -1,5 +1,7 @@
 'use client';
 
+import { sdk } from '@farcaster/miniapp-sdk';
+
 import { useEffect, useState } from 'react';
 import { userController } from '../controller';
 import Feed from '../components/Feed';
@@ -11,6 +13,7 @@ export default function Home() {
   useEffect(() => {
     // Initialize on client side only
     if (typeof window !== 'undefined') {
+      sdk.actions.ready();
       // TODO: In production, this will come from Farcaster miniapp context
       // For testing, use two fixed users: Alice and Bob
       let mockFid = localStorage.getItem('currentUserFid');
