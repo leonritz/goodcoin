@@ -89,7 +89,7 @@ export default function TransactionList({
                 </p>
                 {post && (
                   <p className="text-sm text-gray-700 line-clamp-2 italic mb-2 bg-white bg-opacity-60 p-2 rounded">
-                    "{post.description}"
+                    &quot;{post.description}&quot;
                   </p>
                 )}
                 <p className="text-xs font-semibold text-gray-500">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { postController, userController } from '../controller';
 import { Post } from '../model';
@@ -17,13 +17,13 @@ export default function Feed({ currentUserFid }: FeedProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserBalance, setCurrentUserBalance] = useState(0);
 
-  const loadFeed = () => {
+  const loadFeed = useCallback(() => {
     const allPosts = postController.getAllPosts();
     setPosts(allPosts);
     
     const balance = userController.getUserBalance(currentUserFid);
     setCurrentUserBalance(balance);
-  };
+  }, [currentUserFid]);
 
   const switchUser = () => {
     // Toggle between two fixed test users
@@ -42,7 +42,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
 
   useEffect(() => {
     loadFeed();
-  }, [currentUserFid]);
+  }, [loadFeed]);
 
   return (
     <div className="feed-container">
