@@ -7,9 +7,56 @@ import { postController } from './PostController';
  */
 class TransactionController {
   private transactions: Map<string, Transaction>; // transactionId -> Transaction
+  private readonly STORAGE_KEY = 'goodcoin_transactions';
 
   constructor() {
     this.transactions = new Map();
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        Object.entries(data).forEach(([id, txData]: [string, any]) => {
+          const transaction = new Transaction(
+            txData.id,
+            txData.fromFid,
+            txData.toFid,
+            txData.amount,
+            txData.postId
+          );
+          transaction.createdAt = new Date(txData.createdAt);
+          this.transactions.set(id, transaction);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading transactions from storage:', error);
+    }
+  }
+
+  private saveToStorage(): void {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const data: any = {};
+      this.transactions.forEach((tx, id) => {
+        data[id] = {
+          id: tx.id,
+          fromFid: tx.fromFid,
+          toFid: tx.toFid,
+          amount: tx.amount,
+          postId: tx.postId,
+          createdAt: tx.createdAt.toISOString(),
+        };
+      });
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Error saving transactions to storage:', error);
+    }
   }
 
   /**
@@ -65,6 +112,7 @@ class TransactionController {
 
     // Save transaction
     this.transactions.set(transactionId, transaction);
+    this.saveToStorage();
 
     return {
       success: true,
@@ -91,6 +139,44 @@ class TransactionController {
       (tx) => tx.postId === postId
     );
     return postTransactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  /**
+   * Get all donations sent by a user
+   */
+  getDonationsSentByUser(fid: string): Transaction[] {
+    const sentDonations = Array.from(this.transactions.values()).filter(
+      (tx) => tx.fromFid === fid
+    );
+    return sentDonations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  /**
+   * Get all donations received by a user
+   */
+  getDonationsReceivedByUser(fid: string): Transaction[] {
+    const receivedDonations = Array.from(this.transactions.values()).filter(
+      (tx) => tx.toFid === fid
+    );
+    return receivedDonations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  /**
+   * Get total amount donated by a user
+   */
+  getTotalDonatedByUser(fid: string): number {
+    return Array.from(this.transactions.values())
+      .filter((tx) => tx.fromFid === fid)
+      .reduce((sum, tx) => sum + tx.amount, 0);
+  }
+
+  /**
+   * Get total amount received by a user
+   */
+  getTotalReceivedByUser(fid: string): number {
+    return Array.from(this.transactions.values())
+      .filter((tx) => tx.toFid === fid)
+      .reduce((sum, tx) => sum + tx.amount, 0);
   }
 }
 

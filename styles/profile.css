@@ -1,0 +1,212 @@
+/* Profile Page Styles */
+
+.profile-container {
+  min-height: 100vh;
+  background-color: var(--background);
+}
+
+.profile-nav-header {
+  background-color: var(--surface);
+  border-bottom: 2px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-nav-content {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-back-button {
+  color: var(--primary-pink);
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--primary-pink-lighter);
+  border: 2px solid transparent;
+}
+
+.profile-back-button:hover {
+  background-color: var(--primary-pink-light);
+  border-color: var(--primary-pink);
+  transform: translateX(-2px);
+}
+
+.profile-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-header {
+  background-color: var(--surface);
+  border-bottom: 2px solid var(--border);
+  padding: 2rem 1.5rem;
+}
+
+.profile-user-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.profile-avatar {
+  width: 5rem;
+  height: 5rem;
+  background: linear-gradient(135deg, var(--primary-pink), var(--accent-purple));
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  border: 3px solid white;
+}
+
+.profile-user-details h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.profile-user-details p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.profile-stat-card {
+  padding: 1.25rem;
+  border-radius: 0.75rem;
+  border: 2px solid;
+  transition: all 0.2s ease-in-out;
+}
+
+.profile-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.profile-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.profile-stat-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Stat Card Colors */
+.profile-stat-card-green {
+  background-color: #E8F5E9;
+  border-color: #81C784;
+}
+
+.profile-stat-card-green .profile-stat-value {
+  color: #2E7D32;
+}
+
+.profile-stat-card-green .profile-stat-label {
+  color: #388E3C;
+}
+
+.profile-stat-card-pink {
+  background-color: var(--primary-pink-lighter);
+  border-color: var(--primary-pink-light);
+}
+
+.profile-stat-card-pink .profile-stat-value {
+  color: var(--primary-pink-darker);
+}
+
+.profile-stat-card-pink .profile-stat-label {
+  color: var(--primary-pink-dark);
+}
+
+.profile-stat-card-orange {
+  background-color: #FFF3E0;
+  border-color: #FFB74D;
+}
+
+.profile-stat-card-orange .profile-stat-value {
+  color: #E65100;
+}
+
+.profile-stat-card-orange .profile-stat-label {
+  color: #F57C00;
+}
+
+.profile-stat-card-purple {
+  background-color: #F3E5F5;
+  border-color: #BA68C8;
+}
+
+.profile-stat-card-purple .profile-stat-value {
+  color: #6A1B9A;
+}
+
+.profile-stat-card-purple .profile-stat-label {
+  color: #8E24AA;
+}
+
+.profile-tabs-container {
+  background-color: var(--surface);
+  border-bottom: 2px solid var(--border);
+  overflow-x: auto;
+}
+
+.profile-tabs {
+  display: flex;
+}
+
+.profile-tab {
+  flex: 1;
+  padding: 0.875rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--text-secondary);
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  background-color: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.profile-tab:hover {
+  color: var(--primary-pink);
+  background-color: var(--surface-hover);
+}
+
+.profile-tab-active {
+  color: var(--primary-pink);
+  border-bottom-color: var(--primary-pink);
+  font-weight: 700;
+}
+
+.profile-content {
+  padding-bottom: 1.5rem;
+}
+

@@ -1,14 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
   :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    /* Dark Pink Color Scheme */
+    --primary-pink: #D81B60;
+    --primary-pink-dark: #C2185B;
+    --primary-pink-darker: #AD1457;
+    --primary-pink-light: #F06292;
+    --primary-pink-lighter: #F8BBD0;
+    
+    /* Accent Colors */
+    --accent-purple: #8E24AA;
+    --accent-orange: #F57C00;
+    --accent-green: #388E3C;
+    --accent-blue: #1976D2;
+    
+    /* Neutral Colors */
+    --background: #FAFAFA;
+    --surface: #FFFFFF;
+    --surface-hover: #F5F5F5;
+    --border: #E0E0E0;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --text-disabled: #BDBDBD;
+    
+    /* Shadow */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
   }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --background: #0a0a0a;
-      --foreground: #ededed;
-    }
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
   }
 
   html,
@@ -18,43 +45,182 @@
   }
 
   body {
-    color: var(--foreground);
+    color: var(--text-primary);
     background: var(--background);
-    font-family: var(--font-inter), sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
   }
 
-  code {
-    background-color: rgba(0, 0, 0, 0.05);
-    border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    font-family: var(--font-source-code-pro), monospace;
-    font-size: 0.875rem;
-    padding: 0.25rem 0.5rem calc(0.25rem + 2px);
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    line-height: 1.2;
+  }
+}
+
+@layer components {
+  /* Primary Button Styles */
+  .btn-primary {
+    @apply bg-[var(--primary-pink)] text-white font-semibold px-6 py-3 rounded-lg;
+    @apply hover:bg-[var(--primary-pink-dark)] active:bg-[var(--primary-pink-darker)];
+    @apply transition-all duration-200 ease-in-out;
+    @apply shadow-md hover:shadow-lg;
+    @apply cursor-pointer;
+    @apply border-none outline-none;
   }
 
-  @media (prefers-color-scheme: dark) {
-    code {
-      background-color: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
+  .btn-primary:disabled {
+    @apply bg-gray-300 cursor-not-allowed opacity-60;
   }
 
-  * {
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+  /* Secondary Button Styles */
+  .btn-secondary {
+    @apply bg-white text-[var(--primary-pink)] font-semibold px-6 py-3 rounded-lg;
+    @apply border-2 border-[var(--primary-pink)];
+    @apply hover:bg-[var(--primary-pink-lighter)] hover:border-[var(--primary-pink-dark)];
+    @apply transition-all duration-200 ease-in-out;
+    @apply cursor-pointer;
   }
 
-  a {
-    color: inherit;
-    text-decoration: none;
+  /* Icon Button Styles */
+  .btn-icon {
+    @apply p-3 rounded-full transition-all duration-200;
+    @apply hover:bg-gray-100 active:bg-gray-200;
+    @apply cursor-pointer;
+    @apply flex items-center justify-center;
   }
 
-  @media (prefers-color-scheme: dark) {
-    html {
-      color-scheme: dark;
-    }
+  .btn-icon-pink {
+    @apply p-3 rounded-full transition-all duration-200;
+    @apply bg-[var(--primary-pink-lighter)] hover:bg-[var(--primary-pink-light)];
+    @apply cursor-pointer;
+    @apply flex items-center justify-center;
+  }
+
+  /* Card Styles */
+  .card {
+    @apply bg-white rounded-xl shadow-sm border border-[var(--border)];
+    @apply transition-shadow duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-md;
+  }
+
+  /* Input Styles */
+  .input {
+    @apply w-full px-4 py-3 rounded-lg border-2 border-gray-300;
+    @apply focus:border-[var(--primary-pink)] focus:outline-none focus:ring-2 focus:ring-[var(--primary-pink-lighter)];
+    @apply transition-all duration-200;
+    @apply text-base;
+  }
+
+  .textarea {
+    @apply input resize-none;
+  }
+
+  /* Badge Styles */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold;
+  }
+
+  .badge-pink {
+    @apply badge bg-[var(--primary-pink-lighter)] text-[var(--primary-pink-darker)];
+  }
+
+  .badge-green {
+    @apply badge bg-green-100 text-green-700;
+  }
+
+  .badge-blue {
+    @apply badge bg-blue-100 text-blue-700;
+  }
+
+  .badge-orange {
+    @apply badge bg-orange-100 text-orange-700;
+  }
+
+  .badge-purple {
+    @apply badge bg-purple-100 text-purple-700;
+  }
+
+  /* Tab Styles */
+  .tab {
+    @apply flex-1 px-4 py-3 text-sm font-medium whitespace-nowrap;
+    @apply text-gray-600 hover:text-[var(--primary-pink)];
+    @apply transition-colors duration-200;
+    @apply cursor-pointer;
+  }
+
+  .tab-active {
+    @apply tab text-[var(--primary-pink)] border-b-2 border-[var(--primary-pink)];
+  }
+
+  /* Link Styles */
+  .link {
+    @apply text-[var(--primary-pink)] font-medium;
+    @apply hover:text-[var(--primary-pink-dark)] hover:underline;
+    @apply transition-colors duration-200;
+    @apply cursor-pointer;
+  }
+
+  /* Stat Card Styles */
+  .stat-card {
+    @apply p-4 rounded-lg border-2;
+    @apply transition-all duration-200;
+  }
+
+  .stat-card-pink {
+    @apply stat-card bg-[var(--primary-pink-lighter)] border-[var(--primary-pink-light)];
+  }
+
+  .stat-card-green {
+    @apply stat-card bg-green-50 border-green-200;
+  }
+
+  .stat-card-blue {
+    @apply stat-card bg-blue-50 border-blue-200;
+  }
+
+  .stat-card-orange {
+    @apply stat-card bg-orange-50 border-orange-200;
+  }
+
+  .stat-card-purple {
+    @apply stat-card bg-purple-50 border-purple-200;
+  }
+
+  /* Loading Spinner */
+  .spinner {
+    @apply inline-block w-6 h-6 border-3 border-[var(--primary-pink-lighter)];
+    @apply border-t-[var(--primary-pink)] rounded-full;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+}
+
+@layer utilities {
+  .text-gradient-pink {
+    @apply bg-gradient-to-r from-[var(--primary-pink)] to-[var(--accent-purple)];
+    @apply bg-clip-text text-transparent;
+  }
+
+  .bg-gradient-pink {
+    @apply bg-gradient-to-br from-[var(--primary-pink)] to-[var(--accent-purple)];
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-200;
+  }
+
+  .hover-lift:hover {
+    @apply transform -translate-y-1;
   }
 }
