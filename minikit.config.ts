@@ -18,7 +18,7 @@ export const minikitConfig = {
   miniapp: {
     version: "1",
     name: "GoodCoin", 
-    subtitle: "Rewards users with GoodCoins for sharing positive actions", 
+    subtitle: "Go Good. Get GoodCoin.", 
     description: "Go Good. Get GoodCoin.",
     screenshotUrls: [`${ROOT_URL}/screenshot-portrait.png`],
     iconUrl: `${ROOT_URL}/goodcoin.png`,
