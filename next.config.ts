@@ -1,8 +1,7 @@
 import type { NextConfig } from "next";
-import webpack from "webpack";
 
 const nextConfig: NextConfig = {
-  webpack: (config) => {
+  webpack: (config, { webpack }) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     
     // Ignore React Native dependencies that MetaMask SDK tries to import
