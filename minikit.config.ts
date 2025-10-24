@@ -34,6 +34,9 @@ export const minikitConfig = {
     ogDescription: "Go Good. Get GoodCoin.",
     ogImageUrl: `${ROOT_URL}/goodcoin.png`,
     noindex: false,
+    // Add required fields for Base Builder
+    deepLink: ROOT_URL,
+    appUrl: ROOT_URL,
   },
 } as const;
 
