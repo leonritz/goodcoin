@@ -110,8 +110,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Development mode: skip Farcaster SDK initialization on localhost
-      const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      // Check if we're in development mode (localhost) or production
+      const isDevelopment = typeof window !== 'undefined' && 
+        (window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1' ||
+         window.location.hostname.includes('localhost'));
       
       if (isDevelopment) {
         // Development fallback: create mock Farcaster user
@@ -132,12 +135,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Production mode: Initialize Farcaster SDK and try auth
       try {
+        console.log('Production mode: Initializing Farcaster SDK');
         sdk.actions.ready();
         
         const response = await sdk.quickAuth.fetch('/api/auth');
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.user) {
+            console.log('Farcaster auth successful:', data.user);
             // Create user in controller
             const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
             setUser({
@@ -151,9 +156,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
             return;
           }
+        } else {
+          console.log('Farcaster auth response not ok:', response.status);
         }
       } catch (error) {
         console.log('Farcaster auth not available in production:', error);
+        // In production, if Farcaster fails, we should still allow wallet connections
+        // Don't throw error, just continue
       }
       
       setIsLoading(false);
@@ -169,7 +178,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (method === 'farcaster') {
         // Check if we're in development mode
-        const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+        const isDevelopment = typeof window !== 'undefined' && 
+          (window.location.hostname === 'localhost' || 
+           window.location.hostname === '127.0.0.1' ||
+           window.location.hostname.includes('localhost'));
         
         if (isDevelopment) {
           // Development mode: create mock Farcaster user
@@ -264,7 +276,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (user?.authMethod === 'farcaster') {
       try {
         // Skip refresh in development mode
-        const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+        const isDevelopment = typeof window !== 'undefined' && 
+          (window.location.hostname === 'localhost' || 
+           window.location.hostname === '127.0.0.1' ||
+           window.location.hostname.includes('localhost'));
         if (isDevelopment) {
           return;
         }
