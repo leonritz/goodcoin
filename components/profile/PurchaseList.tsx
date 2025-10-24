@@ -15,6 +15,7 @@ export default function PurchaseList({ userFid }: PurchaseListProps) {
 
   useEffect(() => {
     loadPurchases();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userFid]);
 
   const loadPurchases = async () => {

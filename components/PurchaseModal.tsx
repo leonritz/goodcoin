@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAccount, useSendTransaction } from 'wagmi';
-import { parseEther, parseUnits } from 'viem';
+import { parseEther } from 'viem';
 import { purchaseController } from '../controller';
 import '../styles/modal.css';
 
