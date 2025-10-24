@@ -68,7 +68,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
               <div className="feed-user-info" title={user?.address || user?.fid}>
                 <div className="feed-user-avatar">
                   <span style={{ fontSize: '1.2em', fontWeight: 'bold' }}>
-                    {user?.authMethod === 'wallet' ? '₿' : '◉'}
+                    {user?.authMethod === 'wallet' ? '🔑' : '◉'}
                   </span>
                 </div>
                 <span className="feed-user-name">
@@ -83,7 +83,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
             
             <div className="feed-balance-badge">
               <span className="feed-balance-text" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
+                <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
                 {currentUserBalance} Coins
               </span>
             </div>

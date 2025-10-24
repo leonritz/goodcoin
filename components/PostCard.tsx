@@ -161,7 +161,7 @@ export default function PostCard({
           onClick={() => setShowDonationModal(true)}
           className="post-action-button post-action-donate"
         >
-          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
           <span>Donate</span>
         </button>
 
@@ -178,7 +178,7 @@ export default function PostCard({
       {/* Donations Display */}
       {post.donationsReceived > 0 && (
         <div className="post-donations-badge">
-          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
           {post.donationsReceived} Goodcoins donated
         </div>
       )}

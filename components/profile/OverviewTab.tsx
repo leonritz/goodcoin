@@ -72,7 +72,7 @@ export default function OverviewTab({
         <div className="overview-card border-green-300 bg-gradient-to-r from-green-50 via-emerald-100 to-green-50">
           <div className="flex items-center gap-4">
             <div className="stat-icon bg-gradient-to-br from-green-500 to-emerald-600">
-              <span style={{ fontSize: '2em', fontWeight: 'bold' }}>$</span>
+              <span style={{ fontSize: '2em', fontWeight: 'bold' }}>🪙</span>
             </div>
             <div>
               <p className="stat-label text-green-700">Donations Received</p>

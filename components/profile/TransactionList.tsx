@@ -55,7 +55,7 @@ export default function TransactionList({
     return (
       <div className="empty-state">
         <div className="empty-state-icon" style={{ fontSize: '3em', fontWeight: 'bold' }}>
-          {type === 'sent' ? '→' : '$'}
+          {type === 'sent' ? '→' : '🪙'}
         </div>
         <p className="empty-state-title">{emptyMessage}</p>
         <p className="empty-state-subtitle">{emptySubtext}</p>
@@ -138,7 +138,7 @@ export default function TransactionList({
                   : 'bg-green-300 text-green-900'
               }`}>
                 <span>{type === 'sent' ? '-' : '+'}{transaction.amount}</span>
-                <span style={{ marginLeft: '4px', fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
+                <span style={{ marginLeft: '4px', fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
               </div>
             </div>
           </div>
