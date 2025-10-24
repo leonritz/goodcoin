@@ -1,6 +1,6 @@
 'use client';
 
-type TabType = 'overview' | 'posts' | 'liked' | 'donated' | 'received' | 'purchases';
+type TabType = 'overview' | 'posts' | 'liked' | 'donated' | 'received';
 
 interface ProfileTabsProps {
   activeTab: TabType;
@@ -10,7 +10,6 @@ interface ProfileTabsProps {
     liked: number;
     donated: number;
     received: number;
-    purchases: number;
   };
 }
 
@@ -21,7 +20,6 @@ export default function ProfileTabs({ activeTab, onTabChange, counts }: ProfileT
     { id: 'liked' as TabType, label: `Liked (${counts.liked})` },
     { id: 'donated' as TabType, label: `Donated (${counts.donated})` },
     { id: 'received' as TabType, label: `Received (${counts.received})` },
-    { id: 'purchases' as TabType, label: `Purchases (${counts.purchases})` },
   ];
 
   return (

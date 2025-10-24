@@ -3,18 +3,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
-import { userController, postController, transactionController, purchaseController } from '../../controller';
-import { Post, Transaction, User, Purchase } from '../../model';
+import { userController, postController, transactionController } from '../../controller';
+import { Post, Transaction, User } from '../../model';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileTabs from '../../components/profile/ProfileTabs';
 import OverviewTab from '../../components/profile/OverviewTab';
 import PostsList from '../../components/profile/PostsList';
 import TransactionList from '../../components/profile/TransactionList';
-import PurchaseList from '../../components/profile/PurchaseList';
-import PurchaseModal from '../../components/PurchaseModal';
 import '../../styles/profile.css';
 
-type TabType = 'overview' | 'posts' | 'liked' | 'donated' | 'received' | 'purchases';
+type TabType = 'overview' | 'posts' | 'liked' | 'donated' | 'received';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -22,7 +20,6 @@ export default function ProfilePage() {
   const [currentUserFid, setCurrentUserFid] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [user, setUser] = useState<User | undefined>(undefined);
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   
   // User data
   const [balance, setBalance] = useState(0);
@@ -30,7 +27,6 @@ export default function ProfilePage() {
   const [likedPosts, setLikedPosts] = useState<Post[]>([]);
   const [donationsSent, setDonationsSent] = useState<Transaction[]>([]);
   const [donationsReceived, setDonationsReceived] = useState<Transaction[]>([]);
-  const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [totalDonated, setTotalDonated] = useState(0);
   const [totalReceived, setTotalReceived] = useState(0);
 
@@ -79,10 +75,6 @@ export default function ProfilePage() {
       // Get donations received
       const received = await transactionController.getDonationsReceivedByUser(fid);
       setDonationsReceived(received);
-
-      // Get purchases
-      const purchaseHistory = await purchaseController.getUserPurchases(fid);
-      setPurchases(purchaseHistory);
 
       // Get totals
       const totalSent = await transactionController.getTotalDonatedByUser(fid);
@@ -143,7 +135,6 @@ export default function ProfilePage() {
           totalDonated={totalDonated}
           totalReceived={totalReceived}
           onUpdate={refreshData}
-          onBuyCoins={() => setShowPurchaseModal(true)}
         />
 
         {/* Tab Navigation */}
@@ -155,7 +146,6 @@ export default function ProfilePage() {
             liked: likedPosts.length,
             donated: donationsSent.length,
             received: donationsReceived.length,
-            purchases: purchases.filter(p => p.status === 'completed').length,
           }}
         />
 
@@ -211,22 +201,8 @@ export default function ProfilePage() {
               getUser={userController.getUserByFid.bind(userController)}
             />
           )}
-
-          {activeTab === 'purchases' && (
-            <PurchaseList userFid={currentUserFid} />
-          )}
         </div>
       </div>
-
-      {/* Purchase Modal */}
-      {showPurchaseModal && (
-        <PurchaseModal
-          currentUserFid={currentUserFid}
-          currentUserBalance={balance}
-          onClose={() => setShowPurchaseModal(false)}
-          onPurchaseComplete={refreshData}
-        />
-      )}
     </div>
   );
 }

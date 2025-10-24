@@ -1,11 +1,11 @@
 import { createConfig, http } from 'wagmi';
 import { base } from 'wagmi/chains';
-import { walletConnect, coinbaseWallet, injected } from 'wagmi/connectors';
+import { metaMask, walletConnect, coinbaseWallet, injected } from 'wagmi/connectors';
 
 export const config = createConfig({
   chains: [base],
   connectors: [
-    injected({ target: 'metaMask' }),
+    metaMask(),
     coinbaseWallet({
       appName: 'Goodcoin',
       appLogoUrl: undefined,
@@ -19,6 +19,6 @@ export const config = createConfig({
     ] : []),
   ],
   transports: {
-    [base.id]: http(),
+    [base.id]: http('https://mainnet.base.org'),
   },
 });

@@ -4,10 +4,14 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Feed from '../components/Feed';
 import AuthModal from '../components/AuthModal';
+import TokenBalance from '../components/TokenBalance';
+import TokenPurchaseModal from '../components/TokenPurchaseModal';
+import '../styles/token-balance.css';
 
 export default function Home() {
   const { user, isLoading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showTokenPurchase, setShowTokenPurchase] = useState(false);
 
   useEffect(() => {
     console.log('Home: Auth state changed:', { 
@@ -98,5 +102,53 @@ export default function Home() {
     );
   }
 
-  return <Feed currentUserFid={user.fid || user.address || 'unknown'} />;
+  return (
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background)' }}>
+      {/* Token Balance Section */}
+      <div style={{ padding: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
+          <TokenBalance showEthBalance={true} showRefreshButton={true} />
+          <button
+            onClick={() => setShowTokenPurchase(true)}
+            className="btn-primary"
+            style={{
+              padding: '0.75rem 1.5rem',
+              borderRadius: '8px',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              background: 'var(--primary-green)',
+              color: 'white',
+              border: 'none',
+              fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace"
+            }}
+          >
+            Buy GOOD Tokens
+          </button>
+        </div>
+      </div>
+
+      {/* Main Feed */}
+      <Feed currentUserFid={user.fid || user.address || 'unknown'} />
+
+      {/* Token Purchase Modal */}
+      <TokenPurchaseModal
+        isOpen={showTokenPurchase}
+        onClose={() => setShowTokenPurchase(false)}
+        onSuccess={(txHash) => {
+          console.log('Token purchase successful:', txHash);
+          // You can add additional success handling here
+        }}
+      />
+    </div>
+  );
 }
