@@ -19,7 +19,7 @@ export const minikitConfig = {
     version: "1",
     name: "GoodCoin", 
     subtitle: "Rewards users with GoodCoins for sharing positive actions", 
-    description: "Positives Vibes For All",
+    description: "Go Good. Get GoodCoin.",
     screenshotUrls: [`${ROOT_URL}/screenshot-portrait.png`],
     iconUrl: `${ROOT_URL}/goodcoin.png`,
     splashImageUrl: `${ROOT_URL}/goodcoin.png`,
@@ -29,10 +29,11 @@ export const minikitConfig = {
     primaryCategory: "social",
     tags: ["marketing", "ads", "quickstart", "waitlist"],
     heroImageUrl: `${ROOT_URL}/goodcoin.png`, 
-    tagline: "",
-    ogTitle: "",
-    ogDescription: "",
+    tagline: "Go Good. Get GoodCoin.",
+    ogTitle: "GoodCoin",
+    ogDescription: "Go Good. Get GoodCoin.",
     ogImageUrl: `${ROOT_URL}/goodcoin.png`,
+    noindex: false,
   },
 } as const;
 
