@@ -67,7 +67,9 @@ export default function Feed({ currentUserFid }: FeedProps) {
             {user?.isAuthenticated && (
               <div className="feed-user-info" title={user?.address || user?.fid}>
                 <div className="feed-user-avatar">
-                  {user?.authMethod === 'wallet' ? '👛' : '🎭'}
+                  <span style={{ fontSize: '1.2em', fontWeight: 'bold' }}>
+                    {user?.authMethod === 'wallet' ? '₿' : '◉'}
+                  </span>
                 </div>
                 <span className="feed-user-name">
                   {user?.displayName || user?.username || 
@@ -80,8 +82,9 @@ export default function Feed({ currentUserFid }: FeedProps) {
             )}
             
             <div className="feed-balance-badge">
-              <span className="feed-balance-text">
-                💰 {currentUserBalance} Coins
+              <span className="feed-balance-text" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
+                {currentUserBalance} Coins
               </span>
             </div>
             <button
@@ -89,9 +92,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
               className="feed-profile-button"
               title={user?.isAuthenticated ? "View Profile" : "Sign In"}
             >
-              <svg className="feed-profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+              <span style={{ fontSize: '1.3em', fontWeight: 'bold' }}>⚙</span>
             </button>
             {user?.isAuthenticated && (
               <button
@@ -99,9 +100,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
                 className="feed-profile-button feed-disconnect-button"
                 title="Disconnect"
               >
-                <svg className="feed-profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
+                <span style={{ fontSize: '1.3em', fontWeight: 'bold' }}>×</span>
               </button>
             )}
           </div>
@@ -118,10 +117,10 @@ export default function Feed({ currentUserFid }: FeedProps) {
               onClick={() => setIsPostFormExpanded(true)}
             >
               <div className="post-creation-avatar">
-                ?
+                <span style={{ fontSize: '1.8em', fontWeight: 'bold' }}>+</span>
               </div>
               <div className="post-creation-placeholder">
-                Spread Positivity...
+                Share something positive...
               </div>
             </div>
           ) : (

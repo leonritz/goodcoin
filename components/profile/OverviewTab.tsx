@@ -23,14 +23,17 @@ export default function OverviewTab({
 
   return (
     <div className="bg-white p-6">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">📊 Activity Summary</h3>
+      <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+        <span style={{ fontSize: '1.2em' }}>▪</span>
+        Activity Summary
+      </h3>
       
       <div className="space-y-4">
         {/* Posts Card */}
         <div className="overview-card border-blue-300 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50">
           <div className="flex items-center gap-4">
             <div className="stat-icon bg-gradient-to-br from-blue-500 to-blue-600">
-              📝
+              <span style={{ fontSize: '2em', fontWeight: 'bold' }}>✎</span>
             </div>
             <div>
               <p className="stat-label text-blue-700">Total Posts</p>
@@ -43,7 +46,7 @@ export default function OverviewTab({
         <div className="overview-card border-pink-300 bg-gradient-to-r from-pink-50 via-pink-100 to-purple-50">
           <div className="flex items-center gap-4">
             <div className="stat-icon bg-gradient-to-br from-pink-500 to-purple-600">
-              ❤️
+              <span style={{ fontSize: '2em', fontWeight: 'bold' }}>♥</span>
             </div>
             <div>
               <p className="stat-label text-pink-700">Likes Given</p>
@@ -56,7 +59,7 @@ export default function OverviewTab({
         <div className="overview-card border-orange-300 bg-gradient-to-r from-orange-50 via-orange-100 to-red-50">
           <div className="flex items-center gap-4">
             <div className="stat-icon bg-gradient-to-br from-orange-500 to-red-500">
-              💸
+              <span style={{ fontSize: '2em', fontWeight: 'bold' }}>→</span>
             </div>
             <div>
               <p className="stat-label text-orange-700">Donations Sent</p>
@@ -69,7 +72,7 @@ export default function OverviewTab({
         <div className="overview-card border-green-300 bg-gradient-to-r from-green-50 via-emerald-100 to-green-50">
           <div className="flex items-center gap-4">
             <div className="stat-icon bg-gradient-to-br from-green-500 to-emerald-600">
-              💰
+              <span style={{ fontSize: '2em', fontWeight: 'bold' }}>$</span>
             </div>
             <div>
               <p className="stat-label text-green-700">Donations Received</p>
@@ -88,8 +91,10 @@ export default function OverviewTab({
             <div className="flex items-center gap-4">
               <div className={`stat-icon ${
                 netImpact >= 0 ? 'bg-gradient-to-br from-green-500 to-emerald-600' : 'bg-gradient-to-br from-red-500 to-orange-600'
-              }`} style={{ width: '4rem', height: '4rem', fontSize: '2rem' }}>
-                {netImpact >= 0 ? '📈' : '📉'}
+              }`} style={{ width: '4rem', height: '4rem' }}>
+                <span style={{ fontSize: '2.5em', fontWeight: 'bold' }}>
+                  {netImpact >= 0 ? '↗' : '↘'}
+                </span>
               </div>
               <div>
                 <p className={`text-sm font-black uppercase tracking-wide ${netImpact >= 0 ? 'text-green-700' : 'text-red-700'}`}>
@@ -100,8 +105,8 @@ export default function OverviewTab({
                 </p>
               </div>
             </div>
-            <div className={`text-5xl ${netImpact >= 0 ? 'text-green-500' : 'text-red-500'}`} style={{ animation: 'pulse-subtle 1.5s ease-in-out infinite' }}>
-              {netImpact >= 0 ? '✨' : '⚠️'}
+            <div className={`${netImpact >= 0 ? 'text-green-500' : 'text-red-500'}`} style={{ animation: 'pulse-subtle 1.5s ease-in-out infinite', fontSize: '3em', fontWeight: 'bold' }}>
+              {netImpact >= 0 ? '◉' : '!'}
             </div>
           </div>
         </div>

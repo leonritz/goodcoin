@@ -45,7 +45,6 @@ export default function TransactionList({
   }, [transactions, type, getPost, getUser]);
 
   if (transactions.length === 0) {
-    const emptyIcon = type === 'sent' ? '💸' : '💰';
     const emptyMessage = type === 'sent' 
       ? "You haven't made any donations yet."
       : "You haven't received any donations yet.";
@@ -55,7 +54,9 @@ export default function TransactionList({
     
     return (
       <div className="empty-state">
-        <div className="empty-state-icon">{emptyIcon}</div>
+        <div className="empty-state-icon" style={{ fontSize: '3em', fontWeight: 'bold' }}>
+          {type === 'sent' ? '→' : '$'}
+        </div>
         <p className="empty-state-title">{emptyMessage}</p>
         <p className="empty-state-subtitle">{emptySubtext}</p>
       </div>
@@ -109,10 +110,11 @@ export default function TransactionList({
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <span className={`text-xs font-black uppercase tracking-wider ${
+                <span className={`text-xs font-black uppercase tracking-wider flex items-center gap-1 ${
                   type === 'sent' ? 'text-orange-600' : 'text-green-600'
                 }`}>
-                  {type === 'sent' ? '💸 Donated to' : '💰 Received from'}
+                  <span style={{ fontSize: '1.2em' }}>{type === 'sent' ? '→' : '←'}</span>
+                  {type === 'sent' ? 'Donated to' : 'Received from'}
                 </span>
               </div>
               <p className="font-black text-lg text-gray-900 mb-2">
@@ -136,7 +138,7 @@ export default function TransactionList({
                   : 'bg-green-300 text-green-900'
               }`}>
                 <span>{type === 'sent' ? '-' : '+'}{transaction.amount}</span>
-                <span className="text-base">💰</span>
+                <span style={{ marginLeft: '4px', fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
               </div>
             </div>
           </div>

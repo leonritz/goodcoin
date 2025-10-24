@@ -1,7 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { useAccount, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useEnsName } from 'wagmi';
+import { base, mainnet } from 'wagmi/chains';
 import { sdk } from '@farcaster/miniapp-sdk';
 import { userController } from '../controller';
 
@@ -33,6 +34,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect: disconnectWallet } = useDisconnect();
+  
+  // Fetch ENS name from mainnet
+  const { data: ensName } = useEnsName({
+    address: address,
+    chainId: mainnet.id,
+  });
+  
+  // Fetch Basename from Base
+  const { data: basename } = useEnsName({
+    address: address,
+    chainId: base.id,
+  });
 
   // Initialize authentication
   useEffect(() => {
@@ -66,7 +79,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // User connected via wallet - create user in controller
           try {
-            const walletUser = await userController.getOrCreateUserFromWallet(address);
+            // Try to fetch Farcaster data for this wallet address
+            let farcasterData = null;
+            try {
+              const fcResponse = await fetch(`https://api.warpcast.com/v2/verifications?address=${address}`);
+              if (fcResponse.ok) {
+                const fcData = await fcResponse.json();
+                if (fcData.result?.fid) {
+                  farcasterData = {
+                    fid: fcData.result.fid,
+                    username: fcData.result.username,
+                    displayName: fcData.result.displayName,
+                  };
+                  console.log('Found Farcaster account for wallet:', farcasterData);
+                }
+              }
+            } catch (fcError) {
+              console.log('No Farcaster account found for this wallet');
+            }
+            
+            // Priority: Farcaster displayName > Basename > ENS > truncated address
+            const displayName = farcasterData?.displayName || basename || ensName || null;
+            const username = farcasterData?.username || basename || ensName || null;
+            console.log('Resolved names:', { farcaster: farcasterData, basename, ensName, address });
+            
+            const walletUser = await userController.getOrCreateUserFromWallet(address, username, displayName);
             console.log('Got wallet user from controller:', walletUser);
             
             const newUser = {
@@ -108,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     
     handleWalletConnection();
-  }, [isConnected, address, user?.address, user?.authMethod]);
+  }, [isConnected, address, user?.address, user?.authMethod, ensName, basename]);
 
   const initializeAuth = async () => {
     try {

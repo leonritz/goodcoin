@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../../contexts/AuthContext';
 import { userController, postController, transactionController } from '../../controller';
 import { Post, Transaction, User } from '../../model';
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -15,6 +16,7 @@ type TabType = 'overview' | 'posts' | 'liked' | 'donated' | 'received';
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { user: authUser, isLoading } = useAuth();
   const [currentUserFid, setCurrentUserFid] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [user, setUser] = useState<User | undefined>(undefined);
@@ -30,41 +32,23 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const initialize = async () => {
-      // Get current user FID from localStorage
-      let mockFid = localStorage.getItem('currentUserFid');
+      // Check if user is authenticated
+      if (isLoading) {
+        return; // Wait for auth to load
+      }
       
-      // If no user exists, create one and redirect to home first
-      if (!mockFid) {
-        mockFid = 'user_' + Date.now();
-        localStorage.setItem('currentUserFid', mockFid);
-        
-        // Create the user
-        await userController.getOrCreateUser(
-          mockFid,
-          'testuser',
-          'Test User',
-          undefined
-        );
-        
-        // Redirect to home page first
+      if (!authUser?.isAuthenticated || !authUser?.fid) {
+        // Not authenticated, redirect to home
         router.push('/');
         return;
       }
       
-      // Make sure the user exists in the controller
-      await userController.getOrCreateUser(
-        mockFid,
-        'testuser',
-        'Test User',
-        undefined
-      );
-      
-      setCurrentUserFid(mockFid);
-      loadUserData(mockFid);
+      setCurrentUserFid(authUser.fid);
+      loadUserData(authUser.fid);
     };
 
     initialize();
-  }, [router]);
+  }, [authUser, isLoading, router]);
 
   const loadUserData = async (fid: string) => {
     try {
@@ -109,7 +93,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!currentUserFid) {
+  if (isLoading || !currentUserFid) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Loading...</p>
@@ -120,7 +104,7 @@ export default function ProfilePage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>User not found</p>
+        <p>Loading profile...</p>
       </div>
     );
   }
@@ -150,6 +134,7 @@ export default function ProfilePage() {
           postsCount={userPosts.length}
           totalDonated={totalDonated}
           totalReceived={totalReceived}
+          onUpdate={refreshData}
         />
 
         {/* Tab Navigation */}

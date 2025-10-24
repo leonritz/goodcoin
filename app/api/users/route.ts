@@ -79,21 +79,31 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fid, balance } = body;
+    const { fid, balance, displayName, username } = body;
 
-    if (!fid || balance === undefined) {
+    if (!fid) {
       return NextResponse.json(
-        { error: 'Missing required fields: fid, balance' },
+        { error: 'Missing required field: fid' },
         { status: 400 }
       );
     }
 
-    const user = await db.get(`users:${fid}`) as { balance: number; updatedAt: string } | null;
+    const user = await db.get(`users:${fid}`) as any;
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    user.balance = balance;
+    // Update only the fields that are provided
+    if (balance !== undefined) {
+      user.balance = balance;
+    }
+    if (displayName !== undefined) {
+      user.displayName = displayName;
+    }
+    if (username !== undefined) {
+      user.username = username;
+    }
+    
     user.updatedAt = new Date().toISOString();
 
     await db.set(`users:${fid}`, user);

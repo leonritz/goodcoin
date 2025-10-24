@@ -48,7 +48,10 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
 
   return (
     <div className="create-post-form">
-      <h2>✨ Create a Post</h2>
+      <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ fontSize: '1.2em', fontWeight: 'bold' }}>+</span>
+        Create a Post
+      </h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label className="form-label">What positive thing would you like to share?</label>
@@ -84,7 +87,9 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
                   style={{ accentColor: 'var(--primary-green)' }}
                   disabled={isSubmitting}
                 />
-                <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>📷 Photo</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                  <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>◇</span> Photo
+                </span>
               </label>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                 <input
@@ -95,7 +100,9 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
                   style={{ accentColor: 'var(--primary-green)' }}
                   disabled={isSubmitting}
                 />
-                <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>🎥 Video</span>
+                <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>
+                  <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>▶</span> Video
+                </span>
               </label>
             </div>
           )}
@@ -118,7 +125,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
             style={{ flex: 1 }}
             disabled={isSubmitting}
           >
-            {isSubmitting ? '⏳ Sharing...' : '🚀 Share Post'}
+            {isSubmitting ? 'Sharing...' : '→ Share Post'}
           </button>
         </div>
       </form>

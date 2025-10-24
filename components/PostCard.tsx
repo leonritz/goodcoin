@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Post, User } from '../model';
 import { postController, userController } from '../controller';
 import CommentSection from './CommentSection';
@@ -140,9 +141,7 @@ export default function PostCard({
           onClick={handleLike}
           className={`post-action-button post-action-like ${hasLiked ? 'liked' : ''}`}
         >
-          <svg fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>{hasLiked ? '♥' : '♡'}</span>
           <span>{post.likesCount}</span>
         </button>
         
@@ -150,9 +149,7 @@ export default function PostCard({
           onClick={() => setShowComments(!showComments)}
           className="post-action-button post-action-comment"
         >
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>💬</span>
           <span>{post.commentsCount}</span>
         </button>
 
@@ -160,9 +157,7 @@ export default function PostCard({
           onClick={() => setShowDonationModal(true)}
           className="post-action-button post-action-donate"
         >
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
           <span>Donate</span>
         </button>
 
@@ -171,17 +166,16 @@ export default function PostCard({
           className={`post-action-button post-action-flag ${hasFlagged ? 'flagged' : ''}`}
           title={hasFlagged ? "Unflag this post" : "Report suspicious content"}
         >
-          <svg fill={hasFlagged ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>⚑</span>
           {flagCount > 0 && <span className="flag-count">{flagCount}</span>}
         </button>
       </div>
 
       {/* Donations Display */}
       {post.donationsReceived > 0 && (
-        <div className="post-donations-display">
-          💰 {post.donationsReceived} Goodcoins donated
+        <div className="post-donations-badge">
+          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>$</span>
+          {post.donationsReceived} Goodcoins donated
         </div>
       )}
 
@@ -194,8 +188,8 @@ export default function PostCard({
         />
       )}
 
-      {/* Donation Modal */}
-      {showDonationModal && (
+      {/* Donation Modal - Rendered via Portal to body */}
+      {showDonationModal && typeof document !== 'undefined' && createPortal(
         <DonationModal
           postId={post.id}
           recipientFid={post.creatorFid}
@@ -204,7 +198,8 @@ export default function PostCard({
           currentUserBalance={currentUserBalance}
           onClose={() => setShowDonationModal(false)}
           onDonationComplete={onUpdate}
-        />
+        />,
+        document.body
       )}
     </div>
   );

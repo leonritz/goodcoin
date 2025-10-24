@@ -55,11 +55,18 @@ class UserController {
 
   /**
    * Create or get user from wallet address
+   * Optionally accepts ENS/Basename for better display
    */
-  async getOrCreateUserFromWallet(address: string): Promise<User> {
+  async getOrCreateUserFromWallet(
+    address: string, 
+    ensName?: string | null,
+    basename?: string | null
+  ): Promise<User> {
     const fid = `wallet_${address}`;
-    const username = address.slice(0, 6) + '...' + address.slice(-4);
-    const displayName = username;
+    
+    // Use basename first, then ENS, then truncated address
+    const displayName = basename || ensName || `${address.slice(0, 6)}...${address.slice(-4)}`;
+    const username = basename || ensName || `${address.slice(0, 6)}...${address.slice(-4)}`;
     
     return await this.getOrCreateUser(fid, username, displayName);
   }

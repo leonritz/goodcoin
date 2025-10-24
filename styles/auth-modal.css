@@ -1,4 +1,4 @@
-/* Authentication Modal Styles */
+/* Authentication Modal Styles - Professional */
 
 .auth-modal-overlay {
   position: fixed;
@@ -6,166 +6,223 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .auth-modal {
-  background-color: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: 0;
-  box-shadow: var(--shadow-lg);
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
   max-width: 28rem;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar */
+.auth-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.auth-modal::-webkit-scrollbar-track {
+  background: var(--surface-hover);
+  border-radius: 3px;
+}
+
+.auth-modal::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 3px;
 }
 
 .auth-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem 1.5rem 0 1.5rem;
-  border-bottom: 3px solid var(--border);
-  margin-bottom: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem) clamp(0.75rem, 2vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+  border-bottom: 1px solid var(--border);
 }
 
 .auth-modal-title {
-  font-size: 1.25rem;
+  font-size: clamp(1.125rem, 3vw, 1.25rem);
   font-weight: 700;
-  color: var(--primary-green);
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
 .auth-modal-close {
-  background: none;
-  border: none;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   cursor: pointer;
   padding: 0.5rem;
   color: var(--text-secondary);
-  transition: color 0.1s ease-in-out;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .auth-modal-close:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-primary);
   color: var(--text-primary);
 }
 
 .auth-modal-content {
-  padding: 0 1.5rem 1.5rem 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
 }
 
 .auth-modal-description {
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: clamp(0.875rem, 2.5vw, 0.938rem);
   margin-bottom: 1.5rem;
   text-align: center;
+  line-height: 1.6;
 }
 
 .auth-modal-error {
-  background-color: #fee;
-  border: 2px solid #fcc;
-  color: #c33;
-  padding: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #dc2626;
+  padding: clamp(0.75rem, 2vw, 1rem);
   margin-bottom: 1rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: clamp(0.813rem, 2vw, 0.875rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-options {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: clamp(0.75rem, 2vw, 1rem);
 }
 
 .auth-option {
   display: flex;
   align-items: center;
-  padding: 1rem;
-  border: 3px solid var(--border);
-  border-radius: 0;
-  background-color: var(--surface);
+  padding: clamp(0.875rem, 2.5vw, 1rem);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
   cursor: pointer;
-  transition: all 0.1s ease-in-out;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  transition: all 0.2s ease;
   text-align: left;
   width: 100%;
 }
 
 .auth-option:hover {
-  background-color: var(--surface-hover);
+  background: var(--surface-hover);
   border-color: var(--primary-green);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.auth-option:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 .auth-option:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 .auth-option:disabled:hover {
-  background-color: var(--surface);
+  background: white;
   border-color: var(--border);
+  box-shadow: none;
 }
 
 .farcaster-option {
-  background-color: var(--primary-green);
+  background: var(--primary-green);
   color: white;
   border-color: var(--primary-green-dark);
+  box-shadow: var(--shadow-sm);
 }
 
 .farcaster-option:hover {
-  background-color: var(--primary-green-light);
+  background: var(--primary-green-dark);
+  box-shadow: var(--shadow-md);
 }
 
 .farcaster-option:disabled:hover {
-  background-color: var(--primary-green);
+  background: var(--primary-green);
+  box-shadow: var(--shadow-sm);
 }
 
 .auth-option-icon {
-  width: 3rem;
-  height: 3rem;
+  width: clamp(2.5rem, 8vw, 3rem);
+  height: clamp(2.5rem, 8vw, 3rem);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 1rem;
+  margin-right: clamp(0.75rem, 2vw, 1rem);
   flex-shrink: 0;
+  border-radius: 8px;
 }
 
 .farcaster-option .auth-option-icon {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .wallet-option .auth-option-icon {
-  background-color: var(--primary-green);
-  color: white;
-  border: 2px solid var(--primary-green-dark);
+  background: var(--surface-hover);
+  color: var(--primary-green);
+  border: 1px solid var(--border);
 }
 
 .auth-option-content {
   flex: 1;
+  min-width: 0;
 }
 
 .auth-option-title {
-  font-size: 1rem;
+  font-size: clamp(0.938rem, 2.5vw, 1rem);
   font-weight: 700;
   margin: 0 0 0.25rem 0;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: -0.01em;
+  word-wrap: break-word;
 }
 
 .auth-option-description {
-  font-size: 0.85rem;
+  font-size: clamp(0.75rem, 2vw, 0.813rem);
   margin: 0;
   opacity: 0.8;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .wallet-options {
@@ -173,12 +230,11 @@
 }
 
 .wallet-options-title {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: clamp(0.813rem, 2vw, 0.875rem);
+  font-weight: 600;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 0 0 0.75rem 0;
+  letter-spacing: 0.01em;
+  margin: 0 0 clamp(0.625rem, 2vw, 0.75rem) 0;
   text-align: center;
 }
 
@@ -186,7 +242,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 1.5rem);
   color: var(--text-secondary);
 }
 
@@ -195,10 +251,9 @@
 }
 
 .auth-loading p {
-  font-size: 0.9rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: clamp(0.875rem, 2vw, 0.938rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
   margin: 0;
 }
 
@@ -213,71 +268,47 @@
     max-width: 100%;
     width: 100%;
     max-height: 95vh;
+    border-radius: 10px;
   }
-  
-  .auth-modal-header {
-    padding: 1rem;
-    margin-bottom: 1rem;
+}
+
+@media (max-width: 380px) {
+  .auth-modal {
+    border-radius: 8px;
   }
-  
-  .auth-modal-title {
-    font-size: 1.1rem;
-  }
-  
-  .auth-modal-content {
-    padding: 0 1rem 1rem 1rem;
-  }
-  
-  .auth-modal-description {
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-  }
-  
+
   .auth-option {
     padding: 0.75rem;
-    margin-bottom: 0.5rem;
   }
-  
+
   .auth-option-icon {
     width: 2rem;
     height: 2rem;
-    margin-right: 0.75rem;
-    flex-shrink: 0;
-  }
-  
-  .auth-option-title {
-    font-size: 0.9rem;
-  }
-  
-  .auth-option-description {
-    font-size: 0.75rem;
-  }
-  
-  .wallet-options-title {
-    font-size: 0.9rem;
-    margin-bottom: 0.75rem;
+    margin-right: 0.625rem;
   }
 }
 
 /* Skip Authentication Option (Development) */
 .skip-option {
-  background-color: #f0f0f0;
-  border-color: #ccc;
+  background: #f5f5f4;
+  border-color: var(--border);
 }
 
 .skip-option:hover:not(:disabled) {
-  background-color: #e0e0e0;
-  border-color: #999;
+  background: #e7e5e4;
+  border-color: var(--text-disabled);
 }
 
 .skip-option .auth-option-icon {
-  color: #666;
+  color: var(--text-disabled);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
 }
 
 .skip-option .auth-option-title {
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .skip-option .auth-option-description {
-  color: #888;
+  color: var(--text-disabled);
 }

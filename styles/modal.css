@@ -1,47 +1,52 @@
-/* Modal Styles */
+/* Professional Modal Styles - Clean & Elegant */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: 9999;
   padding: 1rem;
-  backdrop-filter: blur(4px);
-}
-
-.modal-content {
-  background-color: var(--surface);
-  border: 3px solid var(--border);
-  border-radius: 0;
-  box-shadow: var(--shadow-lg);
-  max-width: 28rem;
-  width: 100%;
-  max-height: 90vh;
+  animation: fadeIn 0.2s ease;
   overflow-y: auto;
-  animation: modalSlideIn 0.3s ease-out;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  backdrop-filter: blur(2px);
 }
 
-@keyframes modalSlideIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
+.modal-content {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  max-width: 32rem;
+  width: 100%;
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  z-index: 10000;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  50% {
-    transform: scale(1.1);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -50,77 +55,107 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 3px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--surface);
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
   font-weight: 700;
   color: var(--text-primary);
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: -0.02em;
 }
 
 .modal-close-button {
-  background-color: var(--surface);
-  border: 3px solid var(--border);
+  background: transparent;
+  border: 1px solid var(--border);
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 0.75rem;
-  border-radius: 0;
-  transition: all 0.1s ease-in-out;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  flex-shrink: 0;
 }
 
 .modal-close-button:hover {
-  background-color: var(--primary-green);
-  color: white;
+  background: var(--surface-hover);
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+.modal-close-button:active {
+  transform: scale(0.95);
 }
 
 .modal-close-button svg {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .modal-body {
   padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Custom scrollbar */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--surface-hover);
+  border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--primary-green);
+  border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-green-dark);
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 2px solid var(--border);
+  border-top: 1px solid var(--border);
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
+  flex-shrink: 0;
+  background: var(--surface);
 }
 
-/* Donation Modal Specific Styles */
+/* Donation Modal Specific Styles - Professional */
 .donation-recipient-info {
-  background-color: var(--primary-green);
-  padding: 1rem;
-  border: 3px solid var(--primary-green-dark);
-  border-radius: 0;
+  background: var(--surface-hover);
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-sm);
 }
 
 .donation-recipient-info p {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .donation-recipient-name {
-  font-size: 1.125rem;
+  font-size: clamp(1.125rem, 4vw, 1.375rem);
   font-weight: 700;
-  color: white;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  color: var(--primary-green);
+  letter-spacing: -0.02em;
 }
 
 .donation-amount-selector {
@@ -129,136 +164,235 @@
 
 .donation-amount-label {
   display: block;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
   margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
 .donation-amount-input {
   width: 100%;
-  padding: 1rem;
-  border-radius: 0;
-  border: 3px solid var(--primary-green);
-  font-size: 2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-radius: 8px;
+  border: 2px solid var(--border);
+  font-size: clamp(2rem, 8vw, 3rem);
   font-weight: 700;
   text-align: center;
+  background: white;
   color: var(--primary-green);
-  background-color: var(--surface);
-  transition: all 0.1s ease-in-out;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  text-transform: uppercase;
-  letter-spacing: 2px;
+  transition: all 0.2s ease;
+  letter-spacing: -0.02em;
 }
 
 .donation-amount-input:focus {
   outline: none;
-  border-color: var(--primary-green-dark);
-  background-color: var(--surface-hover);
+  border-color: var(--primary-green);
+  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+}
+
+.donation-amount-input::placeholder {
+  color: var(--text-disabled);
 }
 
 .donation-quick-amounts {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 0.625rem;
   margin-top: 1rem;
 }
 
+@media (max-width: 480px) {
+  .donation-quick-amounts {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+  }
+}
+
 .quick-amount-button {
-  padding: 0.75rem;
-  background-color: var(--primary-green);
-  color: white;
-  font-weight: 700;
-  border-radius: 0;
-  border: 3px solid var(--primary-green-dark);
+  padding: clamp(0.75rem, 2.5vw, 1rem);
+  background: white;
+  color: var(--text-primary);
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--border);
   cursor: pointer;
-  transition: all 0.1s ease-in-out;
-  font-size: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  font-size: clamp(0.875rem, 3vw, 1rem);
+  letter-spacing: 0.01em;
 }
 
 .quick-amount-button:hover {
-  background-color: var(--primary-green-light);
+  background: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .quick-amount-button:active {
   transform: translateY(0);
 }
 
+.quick-amount-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .donation-balance-info {
-  background-color: var(--primary-green);
-  padding: 0.875rem;
-  border: 3px solid var(--primary-green-dark);
-  border-radius: 0;
+  background: var(--surface-hover);
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-sm);
 }
 
 .donation-balance-text {
-  font-size: 0.875rem;
-  color: white;
-  font-weight: 700;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: clamp(0.813rem, 2.5vw, 0.875rem);
+  color: var(--text-secondary);
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 .donation-error {
-  background-color: #FFEBEE;
-  color: #C62828;
-  padding: 0.875rem;
-  border-radius: 0.5rem;
+  background: #fef2f2;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: 8px;
   margin-bottom: 1rem;
   font-weight: 600;
-  font-size: 0.875rem;
-  border: 2px solid #EF5350;
+  font-size: clamp(0.813rem, 2.5vw, 0.875rem);
+  border: 1px solid #fecaca;
+  box-shadow: var(--shadow-sm);
+  letter-spacing: 0.01em;
 }
 
 .modal-button-primary {
   flex: 1;
-  background-color: var(--primary-green);
+  background: var(--primary-green);
   color: white;
-  font-weight: 700;
-  padding: 1rem 1.5rem;
-  border-radius: 0;
-  border: 3px solid var(--primary-green-dark);
+  font-weight: 600;
+  padding: clamp(1rem, 3vw, 1.125rem) clamp(1.5rem, 5vw, 2rem);
+  border-radius: 8px;
+  border: 1px solid var(--primary-green-dark);
   cursor: pointer;
-  transition: all 0.1s ease-in-out;
+  transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
-  font-size: 1rem;
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: clamp(0.938rem, 3vw, 1rem);
+  letter-spacing: 0.01em;
 }
 
 .modal-button-primary:hover {
-  background-color: var(--primary-green-light);
+  background: var(--primary-green-dark);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.modal-button-primary:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
 .modal-button-primary:disabled {
-  background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+  background: var(--text-disabled);
   cursor: not-allowed;
   opacity: 0.6;
+  border-color: var(--text-disabled);
+  transform: none;
+  box-shadow: none;
 }
 
 .modal-button-secondary {
-  background-color: white;
-  color: var(--text-secondary);
+  background: white;
+  color: var(--text-primary);
   font-weight: 600;
-  padding: 1rem 1.5rem;
-  border-radius: 0.5rem;
-  border: 2px solid var(--border);
+  padding: clamp(1rem, 3vw, 1.125rem) clamp(1.5rem, 5vw, 2rem);
+  border-radius: 8px;
+  border: 1px solid var(--border);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  font-size: 1rem;
+  transition: all 0.2s ease;
+  font-size: clamp(0.938rem, 3vw, 1rem);
 }
 
 .modal-button-secondary:hover {
-  background-color: var(--surface-hover);
-  border-color: var(--text-secondary);
-  color: var(--text-primary);
+  background: var(--surface-hover);
+  border-color: var(--primary-green);
+  color: var(--primary-green);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
+.modal-button-secondary:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Mobile Optimizations */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 0.5rem;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 1rem);
+    border-radius: 10px;
+  }
+
+  .modal-header {
+    padding: 1.25rem 1rem;
+  }
+
+  .modal-body {
+    padding: 1.25rem 1rem;
+  }
+
+  .modal-footer {
+    padding: 1.25rem 1rem;
+    flex-direction: column-reverse;
+  }
+
+  .modal-button-primary,
+  .modal-button-secondary {
+    width: 100%;
+  }
+
+  .donation-recipient-info,
+  .donation-balance-info {
+    padding: 1rem;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 380px) {
+  .modal-content {
+    border-radius: 8px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem 0.875rem;
+  }
+
+  .donation-quick-amounts {
+    gap: 0.4rem;
+  }
+
+  .quick-amount-button {
+    font-size: 0.813rem;
+    padding: 0.625rem 0.5rem;
+  }
+}
+
+/* Success state animation */
+@keyframes successPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
