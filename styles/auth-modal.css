@@ -1,0 +1,229 @@
+/* Authentication Modal Styles */
+
+.auth-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.auth-modal {
+  background-color: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--shadow-lg);
+  max-width: 28rem;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+.auth-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  border-bottom: 3px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+
+.auth-modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-green);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.auth-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: var(--text-secondary);
+  transition: color 0.1s ease-in-out;
+}
+
+.auth-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.auth-modal-content {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+}
+
+.auth-modal-description {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.auth-modal-error {
+  background-color: #fee;
+  border: 2px solid #fcc;
+  color: #c33;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 3px solid var(--border);
+  border-radius: 0;
+  background-color: var(--surface);
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-align: left;
+  width: 100%;
+}
+
+.auth-option:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--primary-green);
+}
+
+.auth-option:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-option:disabled:hover {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+.farcaster-option {
+  background-color: var(--primary-green);
+  color: white;
+  border-color: var(--primary-green-dark);
+}
+
+.farcaster-option:hover {
+  background-color: var(--primary-green-light);
+}
+
+.farcaster-option:disabled:hover {
+  background-color: var(--primary-green);
+}
+
+.auth-option-icon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.farcaster-option .auth-option-icon {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.wallet-option .auth-option-icon {
+  background-color: var(--primary-green);
+  color: white;
+  border: 2px solid var(--primary-green-dark);
+}
+
+.auth-option-content {
+  flex: 1;
+}
+
+.auth-option-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.auth-option-description {
+  font-size: 0.85rem;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.wallet-options {
+  margin-top: 1rem;
+}
+
+.wallet-options-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0 0 0.75rem 0;
+  text-align: center;
+}
+
+.auth-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+  color: var(--text-secondary);
+}
+
+.auth-loading .spinner {
+  margin-bottom: 0.75rem;
+}
+
+.auth-loading p {
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 640px) {
+  .auth-modal {
+    margin: 0.5rem;
+    max-width: calc(100vw - 1rem);
+  }
+  
+  .auth-modal-header {
+    padding: 1rem 1rem 0 1rem;
+  }
+  
+  .auth-modal-content {
+    padding: 0 1rem 1rem 1rem;
+  }
+  
+  .auth-option {
+    padding: 0.75rem;
+  }
+  
+  .auth-option-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-right: 0.75rem;
+  }
+}

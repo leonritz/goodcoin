@@ -1,41 +1,20 @@
 'use client';
 
-import { sdk } from '@farcaster/miniapp-sdk';
-
 import { useEffect, useState } from 'react';
-import { userController } from '../controller';
+import { useAuth } from '../contexts/AuthContext';
 import Feed from '../components/Feed';
+import AuthModal from '../components/AuthModal';
 
 export default function Home() {
-  const [currentUserFid, setCurrentUserFid] = useState<string>('test_user_alice');
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoading } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
-    // Initialize on client side only
-    const initialize = async () => {
-      if (typeof window !== 'undefined') {
-        sdk.actions.ready();
-        // TODO: In production, this will come from Farcaster miniapp context
-        // For testing, use two fixed users: Alice and Bob
-        let mockFid = localStorage.getItem('currentUserFid');
-        
-        if (!mockFid) {
-          // Default to Alice on first load
-          mockFid = 'test_user_alice';
-          localStorage.setItem('currentUserFid', mockFid);
-        }
-        
-        // Create both test users
-        await userController.getOrCreateUser('test_user_alice', 'alice', 'Alice 👩', undefined);
-        await userController.getOrCreateUser('test_user_bob', 'bob', 'Bob 👨', undefined);
-        
-        setCurrentUserFid(mockFid);
-        setIsLoading(false);
-      }
-    };
-
-    initialize();
-  }, []);
+    // Show auth modal if user is not authenticated and not loading
+    if (!isLoading && !user?.isAuthenticated) {
+      setShowAuthModal(true);
+    }
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (
@@ -70,5 +49,46 @@ export default function Home() {
     );
   }
 
-  return <Feed currentUserFid={currentUserFid} />;
+  if (!user?.isAuthenticated) {
+    return (
+      <>
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'var(--background)',
+          fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace"
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{
+              fontSize: '2rem',
+              fontWeight: '700',
+              color: 'var(--primary-green)',
+              textTransform: 'uppercase',
+              letterSpacing: '2px',
+              marginBottom: '1rem'
+            }}>Goodcoin</h1>
+            <p style={{
+              fontSize: '1rem',
+              color: 'var(--text-secondary)',
+              marginBottom: '2rem'
+            }}>Connect to start spreading positivity</p>
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="btn-primary"
+            >
+              Connect Wallet
+            </button>
+          </div>
+        </div>
+        <AuthModal 
+          isOpen={showAuthModal} 
+          onClose={() => setShowAuthModal(false)} 
+        />
+      </>
+    );
+  }
+
+  return <Feed currentUserFid={user.fid || user.address || 'unknown'} />;
 }

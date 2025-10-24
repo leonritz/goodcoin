@@ -46,6 +46,27 @@ class UserController {
   }
 
   /**
+   * Create or get user from wallet address
+   */
+  getOrCreateUserFromWallet(address: string): User {
+    const fid = `wallet_${address}`;
+    const username = address.slice(0, 6) + '...' + address.slice(-4);
+    const displayName = username;
+    
+    return this.getOrCreateUser(fid, username, displayName);
+  }
+
+  /**
+   * Create or get user from Farcaster FID
+   */
+  getOrCreateUserFromFarcaster(fid: string, username?: string, displayName?: string): User {
+    const finalUsername = username || `fid_${fid}`;
+    const finalDisplayName = displayName || `Farcaster User ${fid}`;
+    
+    return this.getOrCreateUser(fid, finalUsername, finalDisplayName);
+  }
+
+  /**
    * Get user by Farcaster ID
    */
   async getUserByFid(fid: string): Promise<User | undefined> {
