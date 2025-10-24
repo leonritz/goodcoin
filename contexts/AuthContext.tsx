@@ -39,6 +39,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initializeAuth();
   }, []);
 
+  // Listen for auth state changes from skip authentication
+  useEffect(() => {
+    const handleAuthStateChange = () => {
+      initializeAuth();
+    };
+
+    window.addEventListener('authStateChanged', handleAuthStateChange);
+    return () => window.removeEventListener('authStateChanged', handleAuthStateChange);
+  }, []);
+
   // Update user when wallet connection changes
   useEffect(() => {
     const handleWalletConnection = async () => {
@@ -72,6 +82,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const initializeAuth = async () => {
         try {
+          // Check for skip authentication first
+          const savedAuth = localStorage.getItem('goodcoin_auth');
+          if (savedAuth) {
+            const authData = JSON.parse(savedAuth);
+            if (authData.method === 'farcaster' && authData.fid === 'test_user_123') {
+              // Skip authentication user
+              console.log('Skip authentication: Creating test user');
+              const testUser = await userController.getOrCreateUserFromFarcaster('test_user_123', 'test_user', 'Test User');
+              setUser({
+                fid: 'test_user_123',
+                isAuthenticated: true,
+                authMethod: 'farcaster',
+                username: testUser.username,
+                displayName: testUser.displayName,
+                profileImage: testUser.profileImage,
+              });
+              setIsLoading(false);
+              return;
+            }
+          }
+          
           // Development mode: skip Farcaster SDK initialization on localhost
           const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
           
@@ -117,24 +148,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } catch (error) {
             console.log('Farcaster auth not available in production:', error);
           }
-      
-      // Check for existing wallet connection
-      const savedAuth = localStorage.getItem('goodcoin_auth');
-      if (savedAuth) {
-        const authData = JSON.parse(savedAuth);
-        if (authData.method === 'wallet' && authData.address) {
-          // Try to reconnect wallet
-          const walletConnector = connectors.find(c => c.name === 'MetaMask' || c.name === 'WalletConnect');
-          if (walletConnector) {
-            try {
-              await connect({ connector: walletConnector });
-            } catch (error) {
-              console.log('Failed to reconnect wallet:', error);
-              localStorage.removeItem('goodcoin_auth');
-            }
-          }
-        }
-      }
       
       setIsLoading(false);
     } catch (error) {

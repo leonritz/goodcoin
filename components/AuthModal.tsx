@@ -102,9 +102,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     method: 'farcaster',
                     fid: 'test_user_123',
                   }));
-                  // Close modal and refresh to trigger auth state update
+                  // Close modal and trigger auth state update
                   onClose();
-                  window.location.reload();
+                  // Trigger a custom event to notify AuthContext
+                  window.dispatchEvent(new CustomEvent('authStateChanged'));
                 }}
                 disabled={isConnecting || isLoading}
               >
