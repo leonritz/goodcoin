@@ -33,7 +33,7 @@ export const minikitConfig = {
     ogTitle: "GoodCoin",
     ogDescription: "Go Good. Get GoodCoin.",
     ogImageUrl: `${ROOT_URL}/goodcoin.png`,
-    noindex: "false",
+    noindex: false,
   },
 } as const;
 
