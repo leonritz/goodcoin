@@ -14,8 +14,23 @@ import { kv } from '@vercel/kv';
  * - transactions:all -> Set of all transaction IDs
  */
 
+// Check environment variables
+console.log('KV Configuration:', {
+  hasKV_URL: !!process.env.KV_REST_API_URL,
+  hasKV_TOKEN: !!process.env.KV_REST_API_TOKEN,
+  nodeEnv: process.env.NODE_ENV,
+});
+
 // Development fallback for local testing without KV
 const isDevelopment = process.env.NODE_ENV === 'development' && !process.env.KV_REST_API_URL;
+
+if (isDevelopment) {
+  console.log('🔧 Using in-memory storage for development');
+} else if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
+  console.error('⚠️ WARNING: KV environment variables not set! Database operations will fail.');
+} else {
+  console.log('✅ KV client initialized with environment variables');
+}
 
 // In-memory store for development
 const devStore = new Map<string, unknown>();
@@ -25,7 +40,12 @@ export const db = {
     if (isDevelopment) {
       return devStore.get(key) || null;
     }
-    return await kv.get(key);
+    try {
+      return await kv.get(key);
+    } catch (error) {
+      console.error('KV get error:', error);
+      throw error;
+    }
   },
 
   async set(key: string, value: unknown) {
@@ -33,7 +53,12 @@ export const db = {
       devStore.set(key, value);
       return 'OK';
     }
-    return await kv.set(key, value);
+    try {
+      return await kv.set(key, value);
+    } catch (error) {
+      console.error('KV set error:', error);
+      throw error;
+    }
   },
 
   async sadd(key: string, ...members: string[]) {
