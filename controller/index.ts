@@ -5,4 +5,5 @@ export { userController } from './UserController';
 export { postController } from './PostController';
 export { commentController } from './CommentController';
 export { transactionController } from './TransactionController';
+export { purchaseController } from './PurchaseController';
 

@@ -11,6 +11,7 @@ interface ProfileHeaderProps {
   totalDonated: number;
   totalReceived: number;
   onUpdate: () => void;
+  onBuyCoins?: () => void;
 }
 
 export default function ProfileHeader({
@@ -20,6 +21,7 @@ export default function ProfileHeader({
   totalDonated,
   totalReceived,
   onUpdate,
+  onBuyCoins,
 }: ProfileHeaderProps) {
   const { user: authUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
@@ -199,8 +201,40 @@ export default function ProfileHeader({
       {/* Stats Grid */}
       <div className="profile-stats-grid">
         <div className="profile-stat-card profile-stat-card-green">
-          <div className="profile-stat-value">{balance}</div>
-          <div className="profile-stat-label">Current Balance</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
+            <div>
+              <div className="profile-stat-value">{balance}</div>
+              <div className="profile-stat-label">Current Balance</div>
+            </div>
+            {onBuyCoins && (
+              <button
+                onClick={onBuyCoins}
+                style={{
+                  padding: '0.5rem 1rem',
+                  background: 'white',
+                  color: 'var(--primary-green)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  fontSize: '0.875rem',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                }}
+                title="Buy Goodcoins"
+              >
+                + Buy
+              </button>
+            )}
+          </div>
         </div>
         <div className="profile-stat-card profile-stat-card-pink">
           <div className="profile-stat-value">{postsCount}</div>

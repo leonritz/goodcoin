@@ -170,15 +170,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Development fallback: create mock Farcaster user
         console.log('Development mode: Creating mock Farcaster user');
         const mockFid = 'dev_farcaster_user_123';
-        const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
-        setUser({
-          fid: mockFid,
-          isAuthenticated: true,
-          authMethod: 'farcaster',
-          username: farcasterUser.username,
-          displayName: farcasterUser.displayName,
-          profileImage: farcasterUser.profileImage,
-        });
+        try {
+          const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+          console.log('Dev user created/retrieved successfully:', farcasterUser);
+          setUser({
+            fid: mockFid,
+            isAuthenticated: true,
+            authMethod: 'farcaster',
+            username: farcasterUser.username,
+            displayName: farcasterUser.displayName,
+            profileImage: farcasterUser.profileImage,
+          });
+        } catch (error) {
+          console.error('Failed to create dev user:', error);
+        }
         setIsLoading(false);
         return;
       }
@@ -237,20 +242,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Development mode: create mock Farcaster user
           console.log('Creating mock Farcaster user for development');
           const mockFid = 'dev_farcaster_user_123';
-          const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
-          const newUser: User = {
-            fid: mockFid,
-            isAuthenticated: true,
-            authMethod: 'farcaster',
-            username: farcasterUser.username,
-            displayName: farcasterUser.displayName,
-            profileImage: farcasterUser.profileImage,
-          };
-          setUser(newUser);
-          localStorage.setItem('goodcoin_auth', JSON.stringify({
-            method: 'farcaster',
-            fid: mockFid,
-          }));
+          try {
+            const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+            console.log('Dev user created for auth:', farcasterUser);
+            const newUser: User = {
+              fid: mockFid,
+              isAuthenticated: true,
+              authMethod: 'farcaster',
+              username: farcasterUser.username,
+              displayName: farcasterUser.displayName,
+              profileImage: farcasterUser.profileImage,
+            };
+            setUser(newUser);
+            localStorage.setItem('goodcoin_auth', JSON.stringify({
+              method: 'farcaster',
+              fid: mockFid,
+            }));
+          } catch (error) {
+            console.error('Failed to create dev user for auth:', error);
+            throw error;
+          }
         } else {
           // Production mode: Use Farcaster Quick Auth
           try {
