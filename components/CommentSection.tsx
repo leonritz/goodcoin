@@ -2,41 +2,65 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { commentController, userController } from '../controller';
-import { Comment } from '../model';
+import { Comment, User } from '../model';
 import '../styles/forms.css';
 
 interface CommentSectionProps {
   postId: string;
   currentUserFid: string;
-  showComments: boolean;
-  onUpdate: () => void;
+  onCommentAdded: () => void;
 }
 
-export default function CommentSection({ postId, currentUserFid, showComments, onUpdate }: CommentSectionProps) {
+export default function CommentSection({ postId, currentUserFid, onCommentAdded }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commenters, setCommenters] = useState<Map<string, User>>(new Map());
 
-  const loadComments = useCallback(() => {
-    const postComments = commentController.getCommentsByPost(postId);
-    setComments(postComments);
+  const loadComments = useCallback(async () => {
+    try {
+      const postComments = await commentController.getCommentsByPost(postId);
+      setComments(postComments);
+      
+      // Load commenter data
+      const userMap = new Map<string, User>();
+      for (const comment of postComments) {
+        if (!userMap.has(comment.creatorFid)) {
+          const user = await userController.getUserByFid(comment.creatorFid);
+          if (user) {
+            userMap.set(comment.creatorFid, user);
+          }
+        }
+      }
+      setCommenters(userMap);
+    } catch (error) {
+      console.error('Error loading comments:', error);
+    }
   }, [postId]);
 
   useEffect(() => {
-    if (showComments) {
-      loadComments();
-    }
-  }, [showComments, loadComments]);
+    loadComments();
+  }, [loadComments]);
 
-  const handleAddComment = (e: React.FormEvent) => {
+  const handleAddComment = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!newComment.trim()) return;
 
-    const comment = commentController.createComment(postId, currentUserFid, newComment);
-    if (comment) {
-      setNewComment('');
-      loadComments();
-      onUpdate(); // Notify parent to refresh post data
+    setIsSubmitting(true);
+    
+    try {
+      const comment = await commentController.createComment(postId, currentUserFid, newComment);
+      if (comment) {
+        setNewComment('');
+        loadComments();
+        onCommentAdded();
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      alert('Failed to add comment. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -52,67 +76,61 @@ export default function CommentSection({ postId, currentUserFid, showComments, o
   };
 
   return (
-    <>
-      {showComments && (
-        <div className="comments-section">
-          {/* Comment List */}
-          <div style={{ maxHeight: '20rem', overflowY: 'auto', marginBottom: '1rem' }}>
-            {comments.length === 0 ? (
-              <p style={{ 
-                textAlign: 'center', 
-                color: 'var(--text-secondary)', 
-                padding: '1.5rem',
-                fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                fontWeight: '700'
-              }}>
-                No comments yet. Be the first to comment!
-              </p>
-            ) : (
-              comments.map((comment) => {
-                const commenter = userController.getUserByFid(comment.creatorFid);
-                return (
-                  <div key={comment.id} className="comment-item">
-                    <div className="comment-header">
-                      <span className="comment-author">
-                        {commenter?.displayName || 'Unknown User'}
-                      </span>
-                      <span className="comment-timestamp">
-                        {formatTimeAgo(comment.createdAt)}
-                      </span>
-                    </div>
-                    <p className="comment-text">{comment.text}</p>
-                  </div>
-                );
-              })
-            )}
-          </div>
+    <div className="comments-section">
+      {/* Comment List */}
+      <div style={{ maxHeight: '20rem', overflowY: 'auto', marginBottom: '1rem' }}>
+        {comments.length === 0 ? (
+          <p style={{ 
+            textAlign: 'center', 
+            color: 'var(--text-secondary)', 
+            padding: '1.5rem',
+            fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            fontWeight: '700'
+          }}>
+            No comments yet. Be the first to comment!
+          </p>
+        ) : (
+          comments.map((comment) => {
+            const commenter = commenters.get(comment.creatorFid);
+            return (
+              <div key={comment.id} className="comment-item">
+                <div className="comment-header">
+                  <span className="comment-author">
+                    {commenter?.displayName || 'Unknown User'}
+                  </span>
+                  <span className="comment-timestamp">
+                    {formatTimeAgo(comment.createdAt)}
+                  </span>
+                </div>
+                <p className="comment-text">{comment.text}</p>
+              </div>
+            );
+          })
+        )}
+      </div>
 
-          {/* Add Comment Form */}
-          <form onSubmit={handleAddComment} className="comment-form">
-            <div className="comment-input-group">
-              <input
-                type="text"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write a comment..."
-                className="comment-input"
-              />
-              <button
-                type="submit"
-                disabled={!newComment.trim()}
-                className="comment-submit-button"
-              >
-                Send
-              </button>
-            </div>
-          </form>
+      {/* Add Comment Form */}
+      <form onSubmit={handleAddComment} className="comment-form">
+        <div className="comment-input-group">
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Write a comment..."
+            className="comment-input"
+            disabled={isSubmitting}
+          />
+          <button
+            type="submit"
+            disabled={!newComment.trim() || isSubmitting}
+            className="comment-submit-button"
+          >
+            {isSubmitting ? '...' : 'Send'}
+          </button>
         </div>
-      )}
-    </>
+      </form>
+    </div>
   );
 }
-
-
-

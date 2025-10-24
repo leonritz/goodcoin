@@ -1,6 +1,6 @@
 'use client';
 
-import { Post, User } from '../../model';
+import { Post } from '../../model';
 import PostCard from '../PostCard';
 import '../../styles/profile-tabs.css';
 
@@ -9,7 +9,7 @@ interface PostsListProps {
   currentUserFid: string;
   currentUserBalance: number;
   emptyMessage: string;
-  getUser: (fid: string) => User | undefined;
+  getUser: (fid: string) => Promise<unknown>;
   onUpdate: () => void;
 }
 
@@ -18,7 +18,6 @@ export default function PostsList({
   currentUserFid,
   currentUserBalance,
   emptyMessage,
-  getUser,
   onUpdate,
 }: PostsListProps) {
   if (posts.length === 0) {
@@ -40,20 +39,15 @@ export default function PostsList({
 
   return (
     <div>
-      {posts.map((post) => {
-        const creator = getUser(post.creatorFid);
-        return (
-          <PostCard
-            key={post.id}
-            post={post}
-            creator={creator}
-            currentUserFid={currentUserFid}
-            currentUserBalance={currentUserBalance}
-            onUpdate={onUpdate}
-          />
-        );
-      })}
+      {posts.map((post) => (
+        <PostCard
+          key={post.id}
+          post={post}
+          currentUserFid={currentUserFid}
+          currentUserBalance={currentUserBalance}
+          onUpdate={onUpdate}
+        />
+      ))}
     </div>
   );
 }
-

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { userController, postController, transactionController } from '../../controller';
-import { Post, Transaction } from '../../model';
+import { Post, Transaction, User } from '../../model';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileTabs from '../../components/profile/ProfileTabs';
 import OverviewTab from '../../components/profile/OverviewTab';
@@ -17,6 +17,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [currentUserFid, setCurrentUserFid] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [user, setUser] = useState<User | undefined>(undefined);
   
   // User data
   const [balance, setBalance] = useState(0);
@@ -28,66 +29,78 @@ export default function ProfilePage() {
   const [totalReceived, setTotalReceived] = useState(0);
 
   useEffect(() => {
-    // Get current user FID from localStorage
-    let mockFid = localStorage.getItem('currentUserFid');
-    
-    // If no user exists, create one and redirect to home first
-    if (!mockFid) {
-      mockFid = 'user_' + Date.now();
-      localStorage.setItem('currentUserFid', mockFid);
+    const initialize = async () => {
+      // Get current user FID from localStorage
+      let mockFid = localStorage.getItem('currentUserFid');
       
-      // Create the user
-      userController.getOrCreateUser(
+      // If no user exists, create one and redirect to home first
+      if (!mockFid) {
+        mockFid = 'user_' + Date.now();
+        localStorage.setItem('currentUserFid', mockFid);
+        
+        // Create the user
+        await userController.getOrCreateUser(
+          mockFid,
+          'testuser',
+          'Test User',
+          undefined
+        );
+        
+        // Redirect to home page first
+        router.push('/');
+        return;
+      }
+      
+      // Make sure the user exists in the controller
+      await userController.getOrCreateUser(
         mockFid,
         'testuser',
         'Test User',
         undefined
       );
       
-      // Redirect to home page first
-      router.push('/');
-      return;
-    }
-    
-    // Make sure the user exists in the controller
-    userController.getOrCreateUser(
-      mockFid,
-      'testuser',
-      'Test User',
-      undefined
-    );
-    
-    setCurrentUserFid(mockFid);
-    loadUserData(mockFid);
+      setCurrentUserFid(mockFid);
+      loadUserData(mockFid);
+    };
+
+    initialize();
   }, [router]);
 
-  const loadUserData = (fid: string) => {
-    // Get user balance
-    const userBalance = userController.getUserBalance(fid);
-    setBalance(userBalance);
+  const loadUserData = async (fid: string) => {
+    try {
+      // Get user
+      const userData = await userController.getUserByFid(fid);
+      setUser(userData);
 
-    // Get user's posts
-    const posts = postController.getPostsByUser(fid);
-    setUserPosts(posts);
+      // Get user balance
+      const userBalance = await userController.getUserBalance(fid);
+      setBalance(userBalance);
 
-    // Get liked posts
-    const liked = postController.getPostsLikedByUser(fid);
-    setLikedPosts(liked);
+      // Get user's posts
+      const posts = await postController.getPostsByUser(fid);
+      setUserPosts(posts);
 
-    // Get donations sent
-    const sent = transactionController.getDonationsSentByUser(fid);
-    setDonationsSent(sent);
+      // Get liked posts
+      const liked = await postController.getPostsLikedByUser(fid);
+      setLikedPosts(liked);
 
-    // Get donations received
-    const received = transactionController.getDonationsReceivedByUser(fid);
-    setDonationsReceived(received);
+      // Get donations sent
+      const sent = await transactionController.getDonationsSentByUser(fid);
+      setDonationsSent(sent);
 
-    // Get totals
-    const totalSent = transactionController.getTotalDonatedByUser(fid);
-    setTotalDonated(totalSent);
+      // Get donations received
+      const received = await transactionController.getDonationsReceivedByUser(fid);
+      setDonationsReceived(received);
 
-    const totalRec = transactionController.getTotalReceivedByUser(fid);
-    setTotalReceived(totalRec);
+      // Get totals
+      const totalSent = await transactionController.getTotalDonatedByUser(fid);
+      setTotalDonated(totalSent);
+
+      const totalRec = await transactionController.getTotalReceivedByUser(fid);
+      setTotalReceived(totalRec);
+    } catch (error) {
+      console.error('Error loading user data:', error);
+    }
   };
 
   const refreshData = () => {
@@ -103,8 +116,6 @@ export default function ProfilePage() {
       </div>
     );
   }
-
-  const user = userController.getUserByFid(currentUserFid);
 
   if (!user) {
     return (

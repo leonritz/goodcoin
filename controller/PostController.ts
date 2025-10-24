@@ -1,222 +1,296 @@
 import { Post } from '../model';
 
 /**
- * PostController handles all post-related operations
+ * PostController handles all post-related operations using API
  */
 class PostController {
-  private posts: Map<string, Post>; // postId -> Post
-  private likedPosts: Map<string, Set<string>>; // postId -> Set of fids who liked
-  private readonly STORAGE_KEY_POSTS = 'goodcoin_posts';
-  private readonly STORAGE_KEY_LIKES = 'goodcoin_likes';
-
-  constructor() {
-    this.posts = new Map();
-    this.likedPosts = new Map();
-    this.loadFromStorage();
-  }
-
-  private loadFromStorage(): void {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      // Load posts
-      const storedPosts = localStorage.getItem(this.STORAGE_KEY_POSTS);
-      if (storedPosts) {
-        const data = JSON.parse(storedPosts);
-        Object.entries(data).forEach(([id, postData]: [string, any]) => {
-          const post = new Post(
-            postData.id,
-            postData.creatorFid,
-            postData.description,
-            postData.mediaUrl,
-            postData.mediaType
-          );
-          post.likesCount = postData.likesCount;
-          post.commentsCount = postData.commentsCount;
-          post.donationsReceived = postData.donationsReceived;
-          post.createdAt = new Date(postData.createdAt);
-          post.updatedAt = new Date(postData.updatedAt);
-          this.posts.set(id, post);
-        });
-      }
-
-      // Load likes
-      const storedLikes = localStorage.getItem(this.STORAGE_KEY_LIKES);
-      if (storedLikes) {
-        const data = JSON.parse(storedLikes);
-        Object.entries(data).forEach(([postId, likers]: [string, any]) => {
-          this.likedPosts.set(postId, new Set(likers));
-        });
-      }
-    } catch (error) {
-      console.error('Error loading posts from storage:', error);
-    }
-  }
-
-  private saveToStorage(): void {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      // Save posts
-      const postsData: any = {};
-      this.posts.forEach((post, id) => {
-        postsData[id] = {
-          id: post.id,
-          creatorFid: post.creatorFid,
-          description: post.description,
-          mediaUrl: post.mediaUrl,
-          mediaType: post.mediaType,
-          likesCount: post.likesCount,
-          commentsCount: post.commentsCount,
-          donationsReceived: post.donationsReceived,
-          createdAt: post.createdAt.toISOString(),
-          updatedAt: post.updatedAt.toISOString(),
-        };
-      });
-      localStorage.setItem(this.STORAGE_KEY_POSTS, JSON.stringify(postsData));
-
-      // Save likes
-      const likesData: any = {};
-      this.likedPosts.forEach((likers, postId) => {
-        likesData[postId] = Array.from(likers);
-      });
-      localStorage.setItem(this.STORAGE_KEY_LIKES, JSON.stringify(likesData));
-    } catch (error) {
-      console.error('Error saving posts to storage:', error);
-    }
-  }
+  private readonly API_BASE = '/api/posts';
 
   /**
    * Create a new post
    */
-  createPost(
+  async createPost(
     creatorFid: string,
     description: string,
     mediaUrl?: string,
     mediaType?: 'photo' | 'video'
-  ): Post {
-    const postId = `post_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const post = new Post(postId, creatorFid, description, mediaUrl, mediaType);
-    this.posts.set(postId, post);
-    this.likedPosts.set(postId, new Set());
-    this.saveToStorage();
-    return post;
+  ): Promise<Post> {
+    try {
+      const response = await fetch(this.API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          creatorFid,
+          description,
+          mediaUrl,
+          mediaType,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
+
+      const postData = await response.json();
+      const post = new Post(
+        postData.id,
+        postData.creatorFid,
+        postData.description,
+        postData.mediaUrl,
+        postData.mediaType
+      );
+      post.likesCount = postData.likesCount;
+      post.commentsCount = postData.commentsCount;
+      post.donationsReceived = postData.donationsReceived;
+      post.createdAt = new Date(postData.createdAt);
+      post.updatedAt = new Date(postData.updatedAt);
+      return post;
+    } catch (error) {
+      console.error('Error creating post:', error);
+      throw error;
+    }
   }
 
   /**
    * Get all posts sorted by newest first
    */
-  getAllPosts(): Post[] {
-    const allPosts = Array.from(this.posts.values());
-    return allPosts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  async getAllPosts(): Promise<Post[]> {
+    try {
+      const response = await fetch(this.API_BASE);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch posts');
+      }
+
+      const postsData = await response.json();
+      return postsData.map((postData: any) => {
+        const post = new Post(
+          postData.id,
+          postData.creatorFid,
+          postData.description,
+          postData.mediaUrl,
+          postData.mediaType
+        );
+        post.likesCount = postData.likesCount;
+        post.commentsCount = postData.commentsCount;
+        post.donationsReceived = postData.donationsReceived;
+        post.createdAt = new Date(postData.createdAt);
+        post.updatedAt = new Date(postData.updatedAt);
+        return post;
+      });
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      return [];
+    }
   }
 
   /**
    * Get a specific post by ID
    */
-  getPostById(postId: string): Post | undefined {
-    return this.posts.get(postId);
+  async getPostById(postId: string): Promise<Post | undefined> {
+    try {
+      const response = await fetch(`${this.API_BASE}?postId=${postId}`);
+      
+      if (response.status === 404) {
+        return undefined;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch post');
+      }
+
+      const postData = await response.json();
+      const post = new Post(
+        postData.id,
+        postData.creatorFid,
+        postData.description,
+        postData.mediaUrl,
+        postData.mediaType
+      );
+      post.likesCount = postData.likesCount;
+      post.commentsCount = postData.commentsCount;
+      post.donationsReceived = postData.donationsReceived;
+      post.createdAt = new Date(postData.createdAt);
+      post.updatedAt = new Date(postData.updatedAt);
+      return post;
+    } catch (error) {
+      console.error('Error fetching post:', error);
+      return undefined;
+    }
   }
 
   /**
    * Get posts by a specific user
    */
-  getPostsByUser(creatorFid: string): Post[] {
-    const userPosts = Array.from(this.posts.values()).filter(
-      (post) => post.creatorFid === creatorFid
-    );
-    return userPosts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  async getPostsByUser(creatorFid: string): Promise<Post[]> {
+    try {
+      const response = await fetch(`${this.API_BASE}?creatorFid=${creatorFid}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch user posts');
+      }
+
+      const postsData = await response.json();
+      return postsData.map((postData: any) => {
+        const post = new Post(
+          postData.id,
+          postData.creatorFid,
+          postData.description,
+          postData.mediaUrl,
+          postData.mediaType
+        );
+        post.likesCount = postData.likesCount;
+        post.commentsCount = postData.commentsCount;
+        post.donationsReceived = postData.donationsReceived;
+        post.createdAt = new Date(postData.createdAt);
+        post.updatedAt = new Date(postData.updatedAt);
+        return post;
+      });
+    } catch (error) {
+      console.error('Error fetching user posts:', error);
+      return [];
+    }
   }
 
   /**
    * Like a post
    */
-  likePost(postId: string, userFid: string): boolean {
-    const post = this.posts.get(postId);
-    if (!post) return false;
+  async likePost(postId: string, userFid: string): Promise<boolean> {
+    try {
+      const response = await fetch(this.API_BASE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId,
+          action: 'like',
+          userFid,
+        }),
+      });
 
-    const likers = this.likedPosts.get(postId);
-    if (!likers) return false;
-
-    if (!likers.has(userFid)) {
-      likers.add(userFid);
-      post.addLike();
-      this.saveToStorage();
-      return true;
+      return response.ok;
+    } catch (error) {
+      console.error('Error liking post:', error);
+      return false;
     }
-    return false; // Already liked
   }
 
   /**
    * Unlike a post
    */
-  unlikePost(postId: string, userFid: string): boolean {
-    const post = this.posts.get(postId);
-    if (!post) return false;
+  async unlikePost(postId: string, userFid: string): Promise<boolean> {
+    try {
+      const response = await fetch(this.API_BASE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId,
+          action: 'unlike',
+          userFid,
+        }),
+      });
 
-    const likers = this.likedPosts.get(postId);
-    if (!likers) return false;
-
-    if (likers.has(userFid)) {
-      likers.delete(userFid);
-      post.removeLike();
-      this.saveToStorage();
-      return true;
+      return response.ok;
+    } catch (error) {
+      console.error('Error unliking post:', error);
+      return false;
     }
-    return false; // Not liked
   }
 
   /**
    * Check if user has liked a post
    */
-  hasUserLikedPost(postId: string, userFid: string): boolean {
-    const likers = this.likedPosts.get(postId);
-    return likers ? likers.has(userFid) : false;
+  async hasUserLikedPost(postId: string, userFid: string): Promise<boolean> {
+    try {
+      const response = await fetch(`/api/posts/likes?postId=${postId}&userFid=${userFid}`);
+      
+      if (!response.ok) {
+        return false;
+      }
+
+      const data = await response.json();
+      return data.isLiked || false;
+    } catch (error) {
+      console.error('Error checking like status:', error);
+      return false;
+    }
   }
 
   /**
    * Record a donation on the post
    */
-  addDonationToPost(postId: string, amount: number): boolean {
-    const post = this.posts.get(postId);
-    if (!post) return false;
+  async addDonationToPost(postId: string, amount: number): Promise<boolean> {
+    try {
+      const response = await fetch(this.API_BASE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId,
+          action: 'addDonation',
+          amount,
+        }),
+      });
 
-    post.addDonation(amount);
-    this.saveToStorage();
-    return true;
+      return response.ok;
+    } catch (error) {
+      console.error('Error adding donation to post:', error);
+      return false;
+    }
   }
 
   /**
    * Increment comment count (called by CommentController)
    */
-  incrementCommentCount(postId: string): boolean {
-    const post = this.posts.get(postId);
-    if (!post) return false;
+  async incrementCommentCount(postId: string): Promise<boolean> {
+    try {
+      const response = await fetch(this.API_BASE, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          postId,
+          action: 'incrementComments',
+        }),
+      });
 
-    post.addComment();
-    this.saveToStorage();
-    return true;
+      return response.ok;
+    } catch (error) {
+      console.error('Error incrementing comment count:', error);
+      return false;
+    }
   }
 
   /**
    * Get all posts liked by a specific user
    */
-  getPostsLikedByUser(userFid: string): Post[] {
-    const likedPosts: Post[] = [];
-    
-    this.likedPosts.forEach((likers, postId) => {
-      if (likers.has(userFid)) {
-        const post = this.posts.get(postId);
-        if (post) {
-          likedPosts.push(post);
-        }
+  async getPostsLikedByUser(userFid: string): Promise<Post[]> {
+    try {
+      const response = await fetch(`${this.API_BASE}?likedByFid=${userFid}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch liked posts');
       }
-    });
-    
-    return likedPosts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+      const postsData = await response.json();
+      return postsData.map((postData: any) => {
+        const post = new Post(
+          postData.id,
+          postData.creatorFid,
+          postData.description,
+          postData.mediaUrl,
+          postData.mediaType
+        );
+        post.likesCount = postData.likesCount;
+        post.commentsCount = postData.commentsCount;
+        post.donationsReceived = postData.donationsReceived;
+        post.createdAt = new Date(postData.createdAt);
+        post.updatedAt = new Date(postData.updatedAt);
+        return post;
+      });
+    } catch (error) {
+      console.error('Error fetching liked posts:', error);
+      return [];
+    }
   }
 }
 
 // Singleton instance
 export const postController = new PostController();
-

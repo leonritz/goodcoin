@@ -14,8 +14,9 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
   const [description, setDescription] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'photo' | 'video'>('photo');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!description.trim()) {
@@ -26,14 +27,23 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
     const media = mediaUrl.trim() || undefined;
     const type = media ? mediaType : undefined;
 
-    postController.createPost(currentUserFid, description, media, type);
+    setIsSubmitting(true);
     
-    // Reset form
-    setDescription('');
-    setMediaUrl('');
-    setMediaType('photo');
-    
-    onPostCreated();
+    try {
+      await postController.createPost(currentUserFid, description, media, type);
+      
+      // Reset form
+      setDescription('');
+      setMediaUrl('');
+      setMediaType('photo');
+      
+      onPostCreated();
+    } catch (error) {
+      console.error('Error creating post:', error);
+      alert('Failed to create post. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -48,6 +58,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
             placeholder="Share something positive..."
             className="form-textarea"
             rows={4}
+            disabled={isSubmitting}
           />
         </div>
         
@@ -59,6 +70,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
             onChange={(e) => setMediaUrl(e.target.value)}
             placeholder="Paste image or video URL..."
             className="form-input"
+            disabled={isSubmitting}
           />
           
           {mediaUrl && (
@@ -70,6 +82,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
                   checked={mediaType === 'photo'}
                   onChange={(e) => setMediaType(e.target.value as 'photo' | 'video')}
                   style={{ accentColor: 'var(--primary-green)' }}
+                  disabled={isSubmitting}
                 />
                 <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>📷 Photo</span>
               </label>
@@ -80,6 +93,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
                   checked={mediaType === 'video'}
                   onChange={(e) => setMediaType(e.target.value as 'photo' | 'video')}
                   style={{ accentColor: 'var(--primary-green)' }}
+                  disabled={isSubmitting}
                 />
                 <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>🎥 Video</span>
               </label>
@@ -93,6 +107,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
               type="button"
               onClick={onCancel}
               className="form-button-secondary"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
@@ -101,14 +116,12 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
             type="submit"
             className="form-button-primary"
             style={{ flex: 1 }}
+            disabled={isSubmitting}
           >
-            🚀 Share Post
+            {isSubmitting ? '⏳ Sharing...' : '🚀 Share Post'}
           </button>
         </div>
       </form>
     </div>
   );
 }
-
-
-

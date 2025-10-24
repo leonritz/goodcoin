@@ -1,182 +1,195 @@
 import { Transaction } from '../model';
-import { userController } from './UserController';
-import { postController } from './PostController';
 
 /**
- * TransactionController handles all Goodcoin donation transactions
+ * TransactionController handles all Goodcoin donation transactions using API
  */
 class TransactionController {
-  private transactions: Map<string, Transaction>; // transactionId -> Transaction
-  private readonly STORAGE_KEY = 'goodcoin_transactions';
-
-  constructor() {
-    this.transactions = new Map();
-    this.loadFromStorage();
-  }
-
-  private loadFromStorage(): void {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      if (stored) {
-        const data = JSON.parse(stored);
-        Object.entries(data).forEach(([id, txData]: [string, any]) => {
-          const transaction = new Transaction(
-            txData.id,
-            txData.fromFid,
-            txData.toFid,
-            txData.amount,
-            txData.postId
-          );
-          transaction.createdAt = new Date(txData.createdAt);
-          this.transactions.set(id, transaction);
-        });
-      }
-    } catch (error) {
-      console.error('Error loading transactions from storage:', error);
-    }
-  }
-
-  private saveToStorage(): void {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      const data: any = {};
-      this.transactions.forEach((tx, id) => {
-        data[id] = {
-          id: tx.id,
-          fromFid: tx.fromFid,
-          toFid: tx.toFid,
-          amount: tx.amount,
-          postId: tx.postId,
-          createdAt: tx.createdAt.toISOString(),
-        };
-      });
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
-    } catch (error) {
-      console.error('Error saving transactions to storage:', error);
-    }
-  }
+  private readonly API_BASE = '/api/transactions';
 
   /**
    * Process a donation from one user to another
    */
-  createDonation(
+  async createDonation(
     fromFid: string,
     toFid: string,
     amount: number,
     postId: string
-  ): { success: boolean; message: string; transaction?: Transaction } {
-    // Validation
-    if (amount <= 0) {
-      return { success: false, message: 'Amount must be greater than 0' };
+  ): Promise<{ success: boolean; message: string; transaction?: Transaction }> {
+    try {
+      const response = await fetch(this.API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fromFid,
+          toFid,
+          amount,
+          postId,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.error || 'Failed to create donation',
+        };
+      }
+
+      const txData = data.transaction;
+      const transaction = new Transaction(
+        txData.id,
+        txData.fromFid,
+        txData.toFid,
+        txData.amount,
+        txData.postId
+      );
+      transaction.createdAt = new Date(txData.createdAt);
+
+      return {
+        success: true,
+        message: data.message || 'Donation successful',
+        transaction,
+      };
+    } catch (error) {
+      console.error('Error creating donation:', error);
+      return {
+        success: false,
+        message: 'Failed to create donation',
+      };
     }
-
-    if (fromFid === toFid) {
-      return { success: false, message: 'Cannot donate to yourself' };
-    }
-
-    const donor = userController.getUserByFid(fromFid);
-    if (!donor) {
-      return { success: false, message: 'Donor not found' };
-    }
-
-    const recipient = userController.getUserByFid(toFid);
-    if (!recipient) {
-      return { success: false, message: 'Recipient not found' };
-    }
-
-    const post = postController.getPostById(postId);
-    if (!post) {
-      return { success: false, message: 'Post not found' };
-    }
-
-    // Check if donor has sufficient balance
-    if (!donor.hasSufficientBalance(amount)) {
-      return { success: false, message: 'Insufficient balance' };
-    }
-
-    // Create transaction
-    const transactionId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const transaction = new Transaction(transactionId, fromFid, toFid, amount, postId);
-
-    // Process the transaction
-    const deducted = userController.updateUserBalance(fromFid, -amount);
-    if (!deducted) {
-      return { success: false, message: 'Failed to deduct balance' };
-    }
-
-    userController.updateUserBalance(toFid, amount);
-    postController.addDonationToPost(postId, amount);
-
-    // Save transaction
-    this.transactions.set(transactionId, transaction);
-    this.saveToStorage();
-
-    return {
-      success: true,
-      message: 'Donation successful',
-      transaction,
-    };
   }
 
   /**
    * Get all transactions for a user (sent and received)
    */
-  getUserTransactions(fid: string): Transaction[] {
-    const userTransactions = Array.from(this.transactions.values()).filter(
-      (tx) => tx.fromFid === fid || tx.toFid === fid
-    );
-    return userTransactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  async getUserTransactions(fid: string): Promise<Transaction[]> {
+    try {
+      const response = await fetch(`${this.API_BASE}?userFid=${fid}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch transactions');
+      }
+
+      const transactionsData = await response.json();
+      return transactionsData.map((txData: any) => {
+        const transaction = new Transaction(
+          txData.id,
+          txData.fromFid,
+          txData.toFid,
+          txData.amount,
+          txData.postId
+        );
+        transaction.createdAt = new Date(txData.createdAt);
+        return transaction;
+      });
+    } catch (error) {
+      console.error('Error fetching user transactions:', error);
+      return [];
+    }
   }
 
   /**
    * Get transactions for a specific post
    */
-  getPostTransactions(postId: string): Transaction[] {
-    const postTransactions = Array.from(this.transactions.values()).filter(
-      (tx) => tx.postId === postId
-    );
-    return postTransactions.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  async getPostTransactions(postId: string): Promise<Transaction[]> {
+    try {
+      const response = await fetch(`${this.API_BASE}?postId=${postId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch post transactions');
+      }
+
+      const transactionsData = await response.json();
+      return transactionsData.map((txData: any) => {
+        const transaction = new Transaction(
+          txData.id,
+          txData.fromFid,
+          txData.toFid,
+          txData.amount,
+          txData.postId
+        );
+        transaction.createdAt = new Date(txData.createdAt);
+        return transaction;
+      });
+    } catch (error) {
+      console.error('Error fetching post transactions:', error);
+      return [];
+    }
   }
 
   /**
    * Get all donations sent by a user
    */
-  getDonationsSentByUser(fid: string): Transaction[] {
-    const sentDonations = Array.from(this.transactions.values()).filter(
-      (tx) => tx.fromFid === fid
-    );
-    return sentDonations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  async getDonationsSentByUser(fid: string): Promise<Transaction[]> {
+    try {
+      const response = await fetch(`${this.API_BASE}?userFid=${fid}&type=sent`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch sent donations');
+      }
+
+      const transactionsData = await response.json();
+      return transactionsData.map((txData: any) => {
+        const transaction = new Transaction(
+          txData.id,
+          txData.fromFid,
+          txData.toFid,
+          txData.amount,
+          txData.postId
+        );
+        transaction.createdAt = new Date(txData.createdAt);
+        return transaction;
+      });
+    } catch (error) {
+      console.error('Error fetching sent donations:', error);
+      return [];
+    }
   }
 
   /**
    * Get all donations received by a user
    */
-  getDonationsReceivedByUser(fid: string): Transaction[] {
-    const receivedDonations = Array.from(this.transactions.values()).filter(
-      (tx) => tx.toFid === fid
-    );
-    return receivedDonations.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  async getDonationsReceivedByUser(fid: string): Promise<Transaction[]> {
+    try {
+      const response = await fetch(`${this.API_BASE}?userFid=${fid}&type=received`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch received donations');
+      }
+
+      const transactionsData = await response.json();
+      return transactionsData.map((txData: any) => {
+        const transaction = new Transaction(
+          txData.id,
+          txData.fromFid,
+          txData.toFid,
+          txData.amount,
+          txData.postId
+        );
+        transaction.createdAt = new Date(txData.createdAt);
+        return transaction;
+      });
+    } catch (error) {
+      console.error('Error fetching received donations:', error);
+      return [];
+    }
   }
 
   /**
    * Get total amount donated by a user
    */
-  getTotalDonatedByUser(fid: string): number {
-    return Array.from(this.transactions.values())
-      .filter((tx) => tx.fromFid === fid)
-      .reduce((sum, tx) => sum + tx.amount, 0);
+  async getTotalDonatedByUser(fid: string): Promise<number> {
+    const sentDonations = await this.getDonationsSentByUser(fid);
+    return sentDonations.reduce((sum, tx) => sum + tx.amount, 0);
   }
 
   /**
    * Get total amount received by a user
    */
-  getTotalReceivedByUser(fid: string): number {
-    return Array.from(this.transactions.values())
-      .filter((tx) => tx.toFid === fid)
-      .reduce((sum, tx) => sum + tx.amount, 0);
+  async getTotalReceivedByUser(fid: string): Promise<number> {
+    const receivedDonations = await this.getDonationsReceivedByUser(fid);
+    return receivedDonations.reduce((sum, tx) => sum + tx.amount, 0);
   }
 }
 

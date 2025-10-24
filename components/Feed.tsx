@@ -17,23 +17,31 @@ export default function Feed({ currentUserFid }: FeedProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserBalance, setCurrentUserBalance] = useState(0);
   const [isPostFormExpanded, setIsPostFormExpanded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const loadFeed = useCallback(() => {
-    const allPosts = postController.getAllPosts();
-    setPosts(allPosts);
-    
-    const balance = userController.getUserBalance(currentUserFid);
-    setCurrentUserBalance(balance);
+  const loadFeed = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const allPosts = await postController.getAllPosts();
+      setPosts(allPosts);
+      
+      const balance = await userController.getUserBalance(currentUserFid);
+      setCurrentUserBalance(balance);
+    } catch (error) {
+      console.error('Error loading feed:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, [currentUserFid]);
 
-  const switchUser = () => {
+  const switchUser = async () => {
     // Toggle between two fixed test users
     const user1Fid = 'test_user_alice';
     const user2Fid = 'test_user_bob';
     
     // Create both users if they don't exist
-    userController.getOrCreateUser(user1Fid, 'alice', 'Alice 👩', undefined);
-    userController.getOrCreateUser(user2Fid, 'bob', 'Bob 👨', undefined);
+    await userController.getOrCreateUser(user1Fid, 'alice', 'Alice 👩', undefined);
+    await userController.getOrCreateUser(user2Fid, 'bob', 'Bob 👨', undefined);
     
     // Toggle to the other user
     const newFid = currentUserFid === user1Fid ? user2Fid : user1Fid;
@@ -90,7 +98,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
               onClick={() => setIsPostFormExpanded(true)}
             >
               <div className="post-creation-avatar">
-                {userController.getUserByFid(currentUserFid)?.displayName?.charAt(0).toUpperCase() || '?'}
+                ?
               </div>
               <div className="post-creation-placeholder">
                 Spread Positivity...
@@ -112,30 +120,27 @@ export default function Feed({ currentUserFid }: FeedProps) {
 
         {/* Feed */}
         <div>
-          {posts.length === 0 ? (
+          {isLoading ? (
+            <div className="feed-empty-state">
+              <p>Loading posts...</p>
+            </div>
+          ) : posts.length === 0 ? (
             <div className="feed-empty-state">
               <p>No posts yet. Be the first to share something positive!</p>
             </div>
           ) : (
-            posts.map((post) => {
-              const creator = userController.getUserByFid(post.creatorFid);
-              return (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  creator={creator}
-                  currentUserFid={currentUserFid}
-                  currentUserBalance={currentUserBalance}
-                  onUpdate={loadFeed}
-                />
-              );
-            })
+            posts.map((post) => (
+              <PostCard
+                key={post.id}
+                post={post}
+                currentUserFid={currentUserFid}
+                currentUserBalance={currentUserBalance}
+                onUpdate={loadFeed}
+              />
+            ))
           )}
         </div>
       </div>
     </div>
   );
 }
-
-
-

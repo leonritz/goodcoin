@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Post, User } from '../model';
-import { postController } from '../controller';
+import { postController, userController } from '../controller';
 import CommentSection from './CommentSection';
 import DonationModal from './DonationModal';
 import '../styles/post-card.css';
 
 interface PostCardProps {
   post: Post;
-  creator: User | undefined;
   currentUserFid: string;
   currentUserBalance: number;
   onUpdate: () => void;
@@ -17,26 +16,39 @@ interface PostCardProps {
 
 export default function PostCard({
   post,
-  creator,
   currentUserFid,
   currentUserBalance,
   onUpdate,
 }: PostCardProps) {
   const [showDonationModal, setShowDonationModal] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const [hasLiked, setHasLiked] = useState(
-    postController.hasUserLikedPost(post.id, currentUserFid)
-  );
+  const [hasLiked, setHasLiked] = useState(false);
+  const [creator, setCreator] = useState<User | undefined>(undefined);
 
-  const handleLike = () => {
-    if (hasLiked) {
-      postController.unlikePost(post.id, currentUserFid);
-      setHasLiked(false);
-    } else {
-      postController.likePost(post.id, currentUserFid);
-      setHasLiked(true);
+  useEffect(() => {
+    const loadData = async () => {
+      const isLiked = await postController.hasUserLikedPost(post.id, currentUserFid);
+      setHasLiked(isLiked);
+      
+      const user = await userController.getUserByFid(post.creatorFid);
+      setCreator(user);
+    };
+    loadData();
+  }, [post.id, post.creatorFid, currentUserFid]);
+
+  const handleLike = async () => {
+    try {
+      if (hasLiked) {
+        await postController.unlikePost(post.id, currentUserFid);
+        setHasLiked(false);
+      } else {
+        await postController.likePost(post.id, currentUserFid);
+        setHasLiked(true);
+      }
+      onUpdate();
+    } catch (error) {
+      console.error('Error toggling like:', error);
     }
-    onUpdate();
   };
 
   const formatTimeAgo = (date: Date) => {
@@ -98,7 +110,7 @@ export default function PostCard({
           <span>{post.likesCount}</span>
         </button>
         
-        <button 
+        <button
           onClick={() => setShowComments(!showComments)}
           className="post-action-button post-action-comment"
         >
@@ -108,40 +120,39 @@ export default function PostCard({
           <span>{post.commentsCount}</span>
         </button>
 
-        {post.creatorFid !== currentUserFid && (
-          <button
-            onClick={() => setShowDonationModal(true)}
-            className="post-action-button post-action-donate"
-            title="Donate Goodcoins"
-          >
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Donate</span>
-          </button>
-        )}
-
-        {post.donationsReceived > 0 && (
-          <div className="post-donations-badge">
-            💰 {post.donationsReceived}
-          </div>
-        )}
+        <button
+          onClick={() => setShowDonationModal(true)}
+          className="post-action-button post-action-donate"
+        >
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Donate</span>
+        </button>
       </div>
 
+      {/* Donations Display */}
+      {post.donationsReceived > 0 && (
+        <div className="post-donations-display">
+          💰 {post.donationsReceived} Goodcoins donated
+        </div>
+      )}
+
       {/* Comments Section */}
-      <CommentSection 
-        postId={post.id} 
-        currentUserFid={currentUserFid}
-        showComments={showComments}
-        onUpdate={onUpdate}
-      />
+      {showComments && (
+        <CommentSection
+          postId={post.id}
+          currentUserFid={currentUserFid}
+          onCommentAdded={onUpdate}
+        />
+      )}
 
       {/* Donation Modal */}
-      {showDonationModal && creator && (
+      {showDonationModal && (
         <DonationModal
           postId={post.id}
           recipientFid={post.creatorFid}
-          recipientName={creator.displayName}
+          recipientName={creator?.displayName || 'Unknown User'}
           currentUserFid={currentUserFid}
           currentUserBalance={currentUserBalance}
           onClose={() => setShowDonationModal(false)}
@@ -151,6 +162,3 @@ export default function PostCard({
     </div>
   );
 }
-
-
-

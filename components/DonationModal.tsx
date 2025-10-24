@@ -35,7 +35,7 @@ export default function DonationModal({
     setError('');
   };
 
-  const handleDonate = () => {
+  const handleDonate = async () => {
     const donationAmount = parseInt(amount);
     
     if (isNaN(donationAmount) || donationAmount <= 0) {
@@ -50,24 +50,30 @@ export default function DonationModal({
 
     setIsProcessing(true);
 
-    const result = transactionController.createDonation(
-      currentUserFid,
-      recipientFid,
-      donationAmount,
-      postId
-    );
+    try {
+      const result = await transactionController.createDonation(
+        currentUserFid,
+        recipientFid,
+        donationAmount,
+        postId
+      );
 
-    if (result.success) {
-      setShowSuccess(true);
-      setIsProcessing(false);
-      
-      // Show success message for 1.5 seconds then close
-      setTimeout(() => {
-        onDonationComplete();
-        onClose();
-      }, 1500);
-    } else {
-      setError(result.message);
+      if (result.success) {
+        setShowSuccess(true);
+        setIsProcessing(false);
+        
+        // Show success message for 1.5 seconds then close
+        setTimeout(() => {
+          onDonationComplete();
+          onClose();
+        }, 1500);
+      } else {
+        setError(result.message);
+        setIsProcessing(false);
+      }
+    } catch (error) {
+      console.error('Error processing donation:', error);
+      setError('Failed to process donation. Please try again.');
       setIsProcessing(false);
     }
   };
@@ -79,126 +85,92 @@ export default function DonationModal({
         <div className="modal-header">
           <h2 className="modal-title">💰 Donate Goodcoins</h2>
           <button onClick={onClose} className="modal-close-button">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            ✕
           </button>
         </div>
 
-        {/* Body */}
-        <div className="modal-body">
-          {showSuccess ? (
-            <div style={{ 
-              textAlign: 'center', 
-              padding: '3rem 1rem',
-              animation: 'modalSlideIn 0.3s ease-out'
-            }}>
-              <div style={{ 
-                fontSize: '4rem', 
-                marginBottom: '1rem',
-                animation: 'pulse 0.5s ease-in-out'
-              }}>
-                ✅
-              </div>
-              <h3 style={{ 
-                fontSize: '1.5rem', 
-                fontWeight: '700', 
-                color: 'var(--primary-green)',
-                marginBottom: '0.5rem',
-                fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}>
-                Donation Successful!
-              </h3>
-              <p style={{ 
-                color: 'var(--text-secondary)',
-                fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}>
-                You donated {amount} Goodcoins to {recipientName}
-              </p>
-            </div>
-          ) : (
-            <>
-              <div className="donation-recipient-info">
-                <p>Donating to</p>
-                <div className="donation-recipient-name">{recipientName}</div>
-              </div>
-
-              <div className="donation-balance-info">
-                <span className="donation-balance-text">
-                  Your Balance: {currentUserBalance} Goodcoins
-                </span>
-              </div>
-
-              {error && (
-                <div className="donation-error">
-                  {error}
-                </div>
-              )}
-
-              <div className="donation-amount-selector">
-            <label className="donation-amount-label">Amount to Donate</label>
-            <input
-              type="number"
-              value={amount}
-              onChange={(e) => {
-                setAmount(e.target.value);
-                setError('');
-              }}
-              placeholder="0"
-              min="1"
-              max={currentUserBalance}
-              className="donation-amount-input"
-            />
-
-            <div className="donation-quick-amounts">
-              {quickAmounts.map((quickAmount) => (
-                <button
-                  key={quickAmount}
-                  type="button"
-                  onClick={() => handleQuickAmount(quickAmount)}
-                  className="quick-amount-button"
-                  disabled={quickAmount > currentUserBalance}
-                  style={{ 
-                    opacity: quickAmount > currentUserBalance ? 0.5 : 1,
-                    cursor: quickAmount > currentUserBalance ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  {quickAmount}
-                </button>
-              ))}
-              </div>
-            </div>
-            </>
-          )}
-        </div>
-
-        {/* Footer */}
-        {!showSuccess && (
-          <div className="modal-footer">
-            <button
-              onClick={onClose}
-              className="modal-button-secondary"
-              disabled={isProcessing}
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleDonate}
-              disabled={!amount || parseInt(amount) <= 0 || isProcessing}
-              className="modal-button-primary"
-            >
-              {isProcessing ? '⏳ Processing...' : '🎁 Send Donation'}
-            </button>
+        {/* Success Message */}
+        {showSuccess ? (
+          <div className="modal-success">
+            <div className="modal-success-icon">✅</div>
+            <h3>Donation Successful!</h3>
+            <p>You donated {amount} Goodcoins to {recipientName}</p>
           </div>
+        ) : (
+          <>
+            {/* Recipient Info */}
+            <div className="modal-recipient">
+              <p className="modal-recipient-label">Donating to:</p>
+              <p className="modal-recipient-name">{recipientName}</p>
+            </div>
+
+            {/* Quick Amount Buttons */}
+            <div className="modal-quick-amounts">
+              <p className="modal-section-label">Quick amounts:</p>
+              <div className="modal-quick-amounts-grid">
+                {quickAmounts.map((value) => (
+                  <button
+                    key={value}
+                    onClick={() => handleQuickAmount(value)}
+                    className={`modal-quick-amount-button ${amount === value.toString() ? 'selected' : ''}`}
+                    disabled={isProcessing || value > currentUserBalance}
+                  >
+                    {value}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Amount Input */}
+            <div className="modal-custom-amount">
+              <p className="modal-section-label">Or enter a custom amount:</p>
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => {
+                  setAmount(e.target.value);
+                  setError('');
+                }}
+                placeholder="Enter amount..."
+                className="modal-input"
+                min="1"
+                max={currentUserBalance}
+                disabled={isProcessing}
+              />
+            </div>
+
+            {/* Balance Display */}
+            <div className="modal-balance">
+              Your balance: <strong>{currentUserBalance}</strong> Goodcoins
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="modal-error">
+                {error}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="modal-actions">
+              <button
+                onClick={onClose}
+                className="modal-button modal-button-cancel"
+                disabled={isProcessing}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDonate}
+                className="modal-button modal-button-donate"
+                disabled={isProcessing || !amount || parseInt(amount) <= 0}
+              >
+                {isProcessing ? '⏳ Processing...' : '💚 Donate'}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
   );
 }
-
-
-
