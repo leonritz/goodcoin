@@ -36,8 +36,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setError(null);
     
     try {
-      console.log('Attempting to connect wallet...');
+      console.log('Attempting to connect wallet:', connectorName);
       const connector = connectors.find(c => c.name === connectorName);
+      console.log('Found connector:', connector);
+      
       if (connector) {
         await connectWallet({ connector });
         console.log('Wallet connection successful');
@@ -53,8 +55,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           setError('Connection cancelled by user');
         } else if (err.message.includes('Already processing')) {
           setError('Connection already in progress');
+        } else if (err.message.includes('No provider')) {
+          setError('Wallet not installed. Please install the wallet extension.');
         } else {
-          setError('Connection failed. Please try again.');
+          setError(`Connection failed: ${err.message}`);
         }
       } else {
         setError('Connection failed. Please try again.');
@@ -89,6 +93,34 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           )}
 
           <div className="auth-options">
+            {/* Development Skip Option */}
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                className="auth-option skip-option"
+                onClick={() => {
+                  // Store mock user data in localStorage for persistence
+                  localStorage.setItem('goodcoin_auth', JSON.stringify({
+                    method: 'farcaster',
+                    fid: 'test_user_123',
+                  }));
+                  // Close modal and refresh to trigger auth state update
+                  onClose();
+                  window.location.reload();
+                }}
+                disabled={isConnecting || isLoading}
+              >
+                <div className="auth-option-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                </div>
+                <div className="auth-option-content">
+                  <h3 className="auth-option-title">Skip Authentication (Dev)</h3>
+                  <p className="auth-option-description">Bypass wallet connection for testing</p>
+                </div>
+              </button>
+            )}
+
             {/* Farcaster Option */}
             <button
               className="auth-option farcaster-option"

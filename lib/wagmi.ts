@@ -8,6 +8,7 @@ export const config = createConfig({
     metaMask(),
     coinbaseWallet({
       appName: 'Goodcoin',
+      appLogoUrl: undefined,
     }),
     injected(),
     ...(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ? [

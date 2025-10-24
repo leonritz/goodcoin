@@ -258,3 +258,26 @@
     margin-bottom: 0.75rem;
   }
 }
+
+/* Skip Authentication Option (Development) */
+.skip-option {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.skip-option:hover:not(:disabled) {
+  background-color: #e0e0e0;
+  border-color: #999;
+}
+
+.skip-option .auth-option-icon {
+  color: #666;
+}
+
+.skip-option .auth-option-title {
+  color: #666;
+}
+
+.skip-option .auth-option-description {
+  color: #888;
+}
