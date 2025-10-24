@@ -93,9 +93,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           )}
 
           <div className="auth-options">
-            {/* Development Skip Option */}
-            {process.env.NODE_ENV === 'development' && (
-              <button
+            {/* Skip Authentication Option (Available in Production for Testing) */}
+            <button
                 className="auth-option skip-option"
                 onClick={() => {
                   // Store mock user data in localStorage for persistence
@@ -115,11 +114,10 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </svg>
                 </div>
                 <div className="auth-option-content">
-                  <h3 className="auth-option-title">Skip Authentication (Dev)</h3>
+                  <h3 className="auth-option-title">Skip Authentication</h3>
                   <p className="auth-option-description">Bypass wallet connection for testing</p>
                 </div>
               </button>
-            )}
 
             {/* Farcaster Option */}
             <button
