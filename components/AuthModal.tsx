@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useConnect } from 'wagmi';
 
@@ -10,10 +10,17 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
-  const { connectUser, isLoading } = useAuth();
+  const { connectUser, isLoading, user } = useAuth();
   const { connectors, connect: connectWallet } = useConnect();
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Close modal when user is authenticated
+  useEffect(() => {
+    if (user?.isAuthenticated) {
+      onClose();
+    }
+  }, [user?.isAuthenticated, onClose]);
 
   if (!isOpen) return null;
 
@@ -43,7 +50,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (connector) {
         await connectWallet({ connector });
         console.log('Wallet connection successful');
-        onClose();
+        // Don't close modal immediately - let the AuthContext handle the authentication
+        // The modal will close when the user state changes
       } else {
         throw new Error(`${connectorName} not available`);
       }
@@ -73,8 +81,8 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
         <div className="auth-modal-header">
           <h2 className="auth-modal-title">Connect to Goodcoin</h2>
-          <button className="auth-modal-close" onClick={onClose}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <button className="auth-modal-close-button" onClick={onClose}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
@@ -93,33 +101,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           )}
 
           <div className="auth-options">
-            {/* Skip Authentication Option (Available in Production for Testing) */}
-            <button
-              className="auth-option skip-option"
-              onClick={() => {
-                // Store mock user data in localStorage for persistence
-                localStorage.setItem('goodcoin_auth', JSON.stringify({
-                  method: 'farcaster',
-                  fid: 'test_user_123',
-                }));
-                // Close modal and trigger auth state update
-                onClose();
-                // Trigger a custom event to notify AuthContext
-                window.dispatchEvent(new CustomEvent('authStateChanged'));
-              }}
-              disabled={isConnecting || isLoading}
-            >
-                <div className="auth-option-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                </div>
-                <div className="auth-option-content">
-                  <h3 className="auth-option-title">Skip Authentication</h3>
-                  <p className="auth-option-description">Bypass wallet connection for testing</p>
-                </div>
-              </button>
-
             {/* Farcaster Option */}
             <button
               className="auth-option farcaster-option"
@@ -140,19 +121,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             {/* Wallet Options */}
             <div className="wallet-options">
               <h4 className="wallet-options-title">Connect Wallet</h4>
-              
-              {/* Debug info - remove this later */}
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
-                Available connectors: {connectors.map(c => `${c.name} (${c.type})`).join(', ')}
-              </div>
-              <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
-                Filtered connectors: {connectors
-                  .filter((connector, index, self) => 
-                    index === self.findIndex(c => c.name === connector.name) &&
-                    connector.name !== 'Injected'
-                  )
-                  .map(c => c.name).join(', ')}
-              </div>
               
               {connectors
                 .filter((connector, index, self) => 

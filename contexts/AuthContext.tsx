@@ -62,15 +62,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Authenticating wallet:', address);
         // User connected via wallet - create user in controller
         const walletUser = await userController.getOrCreateUserFromWallet(address);
-        setUser({
+        const newUser = {
           fid: walletUser.fid,
           address,
           isAuthenticated: true,
-          authMethod: 'wallet',
+          authMethod: 'wallet' as const,
           username: walletUser.username,
           displayName: walletUser.displayName,
           profileImage: walletUser.profileImage,
-        });
+        };
+        
+        console.log('Setting wallet user:', newUser);
+        setUser(newUser);
         
         // Save auth state
         localStorage.setItem('goodcoin_auth', JSON.stringify({
@@ -83,55 +86,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('Wallet disconnected');
         setUser(null);
         localStorage.removeItem('goodcoin_auth');
+        setIsLoading(false);
       }
     };
     
     handleWalletConnection();
   }, [isConnected, address, user?.address, user?.authMethod]);
 
-      const initializeAuth = async () => {
-        try {
-          // Check for saved authentication
-          const savedAuth = localStorage.getItem('goodcoin_auth');
-          if (savedAuth) {
-            const authData = JSON.parse(savedAuth);
-            
-            // Skip authentication user
-            if (authData.method === 'farcaster' && authData.fid === 'test_user_123') {
-              console.log('Skip authentication: Creating test user');
-              const testUser = await userController.getOrCreateUserFromFarcaster('test_user_123', 'test_user', 'Test User');
-              setUser({
-                fid: 'test_user_123',
-                isAuthenticated: true,
-                authMethod: 'farcaster',
-                username: testUser.username,
-                displayName: testUser.displayName,
-                profileImage: testUser.profileImage,
-              });
-              setIsLoading(false);
-              return;
-            }
-            
-            // Wallet authentication - wait for wagmi to connect
-            if (authData.method === 'wallet' && authData.address) {
-              console.log('Restoring wallet authentication for:', authData.address);
-              // The wallet connection will be handled by the useEffect that watches isConnected/address
-              // Just wait a moment for wagmi to initialize
-              setIsLoading(false);
-              return;
-            }
-          }
-          
-          // Development mode: skip Farcaster SDK initialization on localhost
-          const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-          
-          if (isDevelopment) {
-            // Development fallback: create mock Farcaster user
-            console.log('Development mode: Creating mock Farcaster user');
-            const mockFid = 'dev_farcaster_user_123';
-            const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+  const initializeAuth = async () => {
+    try {
+      // Check for saved authentication
+      const savedAuth = localStorage.getItem('goodcoin_auth');
+      if (savedAuth) {
+        const authData = JSON.parse(savedAuth);
+        
+        // Wallet authentication - wait for wagmi to connect
+        if (authData.method === 'wallet' && authData.address) {
+          console.log('Restoring wallet authentication for:', authData.address);
+          // The wallet connection will be handled by the useEffect that watches isConnected/address
+          // Just wait a moment for wagmi to initialize
+          setIsLoading(false);
+          return;
+        }
+      }
+      
+      // Development mode: skip Farcaster SDK initialization on localhost
+      const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+      
+      if (isDevelopment) {
+        // Development fallback: create mock Farcaster user
+        console.log('Development mode: Creating mock Farcaster user');
+        const mockFid = 'dev_farcaster_user_123';
+        const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+        setUser({
+          fid: mockFid,
+          isAuthenticated: true,
+          authMethod: 'farcaster',
+          username: farcasterUser.username,
+          displayName: farcasterUser.displayName,
+          profileImage: farcasterUser.profileImage,
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Production mode: Initialize Farcaster SDK and try auth
+      try {
+        sdk.actions.ready();
+        
+        const response = await sdk.quickAuth.fetch('/api/auth');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            // Create user in controller
+            const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
             setUser({
-              fid: mockFid,
+              fid: data.user.fid,
               isAuthenticated: true,
               authMethod: 'farcaster',
               username: farcasterUser.username,
@@ -141,32 +151,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setIsLoading(false);
             return;
           }
-          
-          // Production mode: Initialize Farcaster SDK and try auth
-          try {
-            sdk.actions.ready();
-            
-            const response = await sdk.quickAuth.fetch('/api/auth');
-            if (response.ok) {
-              const data = await response.json();
-              if (data.success && data.user) {
-                // Create user in controller
-                const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
-                setUser({
-                  fid: data.user.fid,
-                  isAuthenticated: true,
-                  authMethod: 'farcaster',
-                  username: farcasterUser.username,
-                  displayName: farcasterUser.displayName,
-                  profileImage: farcasterUser.profileImage,
-                });
-                setIsLoading(false);
-                return;
-              }
-            }
-          } catch (error) {
-            console.log('Farcaster auth not available in production:', error);
-          }
+        }
+      } catch (error) {
+        console.log('Farcaster auth not available in production:', error);
+      }
       
       setIsLoading(false);
     } catch (error) {
@@ -175,62 +163,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-      const connectUser = async (method: 'farcaster' | 'wallet') => {
-        setIsLoading(true);
+  const connectUser = async (method: 'farcaster' | 'wallet') => {
+    setIsLoading(true);
+    
+    try {
+      if (method === 'farcaster') {
+        // Check if we're in development mode
+        const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
         
-        try {
-          if (method === 'farcaster') {
-            // Check if we're in development mode
-            const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-            
-            if (isDevelopment) {
-              // Development mode: create mock Farcaster user
-              console.log('Creating mock Farcaster user for development');
-              const mockFid = 'dev_farcaster_user_123';
-              const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
-              const newUser: User = {
-                fid: mockFid,
-                isAuthenticated: true,
-                authMethod: 'farcaster',
-                username: farcasterUser.username,
-                displayName: farcasterUser.displayName,
-                profileImage: farcasterUser.profileImage,
-              };
-              setUser(newUser);
-              localStorage.setItem('goodcoin_auth', JSON.stringify({
-                method: 'farcaster',
-                fid: mockFid,
-              }));
-            } else {
-              // Production mode: Use Farcaster Quick Auth
-              try {
-                sdk.actions.ready();
-                const response = await sdk.quickAuth.fetch('/api/auth');
-                if (response.ok) {
-                  const data = await response.json();
-                  if (data.success && data.user) {
-                    // Create user in controller
-                    const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
-                    const newUser: User = {
-                      fid: data.user.fid,
-                      isAuthenticated: true,
-                      authMethod: 'farcaster',
-                      username: farcasterUser.username,
-                      displayName: farcasterUser.displayName,
-                      profileImage: farcasterUser.profileImage,
-                    };
-                    setUser(newUser);
-                    localStorage.setItem('goodcoin_auth', JSON.stringify({
-                      method: 'farcaster',
-                      fid: data.user.fid,
-                    }));
-                  }
-                }
-              } catch (error) {
-                console.error('Farcaster auth failed:', error);
-                throw new Error('Farcaster authentication failed');
+        if (isDevelopment) {
+          // Development mode: create mock Farcaster user
+          console.log('Creating mock Farcaster user for development');
+          const mockFid = 'dev_farcaster_user_123';
+          const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+          const newUser: User = {
+            fid: mockFid,
+            isAuthenticated: true,
+            authMethod: 'farcaster',
+            username: farcasterUser.username,
+            displayName: farcasterUser.displayName,
+            profileImage: farcasterUser.profileImage,
+          };
+          setUser(newUser);
+          localStorage.setItem('goodcoin_auth', JSON.stringify({
+            method: 'farcaster',
+            fid: mockFid,
+          }));
+        } else {
+          // Production mode: Use Farcaster Quick Auth
+          try {
+            sdk.actions.ready();
+            const response = await sdk.quickAuth.fetch('/api/auth');
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.user) {
+                // Create user in controller
+                const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
+                const newUser: User = {
+                  fid: data.user.fid,
+                  isAuthenticated: true,
+                  authMethod: 'farcaster',
+                  username: farcasterUser.username,
+                  displayName: farcasterUser.displayName,
+                  profileImage: farcasterUser.profileImage,
+                };
+                setUser(newUser);
+                localStorage.setItem('goodcoin_auth', JSON.stringify({
+                  method: 'farcaster',
+                  fid: data.user.fid,
+                }));
               }
             }
+          } catch (error) {
+            console.error('Farcaster auth failed:', error);
+            throw new Error('Farcaster authentication failed');
+          }
+        }
       } else if (method === 'wallet') {
         // Check if wallet is already connected
         if (isConnected && address) {
@@ -272,31 +260,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('goodcoin_auth');
   };
 
-      const refreshUser = async () => {
-        if (user?.authMethod === 'farcaster') {
-          try {
-            // Skip refresh in development mode
-            const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
-            if (isDevelopment) {
-              return;
-            }
-            
-            sdk.actions.ready();
-            const response = await sdk.quickAuth.fetch('/api/auth');
-            if (response.ok) {
-              const data = await response.json();
-              if (data.success && data.user) {
-                setUser(prev => prev ? {
-                  ...prev,
-                  fid: data.user.fid,
-                } : null);
-              }
-            }
-          } catch (error) {
-            console.error('Failed to refresh Farcaster user:', error);
+  const refreshUser = async () => {
+    if (user?.authMethod === 'farcaster') {
+      try {
+        // Skip refresh in development mode
+        const isDevelopment = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+        if (isDevelopment) {
+          return;
+        }
+        
+        sdk.actions.ready();
+        const response = await sdk.quickAuth.fetch('/api/auth');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            setUser(prev => prev ? {
+              ...prev,
+              fid: data.user.fid,
+            } : null);
           }
         }
-      };
+      } catch (error) {
+        console.error('Failed to refresh Farcaster user:', error);
+      }
+    }
+  };
 
   const value: AuthContextType = {
     user,
