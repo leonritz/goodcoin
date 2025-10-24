@@ -16,6 +16,8 @@ class UserController {
     profileImage?: string
   ): Promise<User> {
     try {
+      console.log('UserController: Creating/getting user:', { fid, username, displayName });
+      
       const response = await fetch(this.API_BASE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -27,11 +29,17 @@ class UserController {
         }),
       });
 
+      console.log('UserController: API response status:', response.status);
+
       if (!response.ok) {
-        throw new Error('Failed to create/get user');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('UserController: API error response:', errorData);
+        throw new Error(`Failed to create/get user: ${response.status} - ${JSON.stringify(errorData)}`);
       }
 
       const userData = await response.json();
+      console.log('UserController: User created/retrieved successfully');
+      
       return new User(
         userData.fid,
         userData.username,
