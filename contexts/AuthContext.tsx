@@ -41,29 +41,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Update user when wallet connection changes
   useEffect(() => {
-    if (isConnected && address) {
-      // User connected via wallet - create user in controller
-      const walletUser = userController.getOrCreateUserFromWallet(address);
-      setUser({
-        fid: walletUser.fid,
-        address,
-        isAuthenticated: true,
-        authMethod: 'wallet',
-        username: walletUser.username,
-        displayName: walletUser.displayName,
-        profileImage: walletUser.profileImage,
-      });
-      
-      // Save auth state
-      localStorage.setItem('goodcoin_auth', JSON.stringify({
-        method: 'wallet',
-        address: address,
-      }));
-    } else if (!isConnected && user?.authMethod === 'wallet') {
-      // User disconnected wallet
-      setUser(null);
-      localStorage.removeItem('goodcoin_auth');
-    }
+    const handleWalletConnection = async () => {
+      if (isConnected && address) {
+        // User connected via wallet - create user in controller
+        const walletUser = await userController.getOrCreateUserFromWallet(address);
+        setUser({
+          fid: walletUser.fid,
+          address,
+          isAuthenticated: true,
+          authMethod: 'wallet',
+          username: walletUser.username,
+          displayName: walletUser.displayName,
+          profileImage: walletUser.profileImage,
+        });
+        
+        // Save auth state
+        localStorage.setItem('goodcoin_auth', JSON.stringify({
+          method: 'wallet',
+          address: address,
+        }));
+      } else if (!isConnected && user?.authMethod === 'wallet') {
+        // User disconnected wallet
+        setUser(null);
+        localStorage.removeItem('goodcoin_auth');
+      }
+    };
+    
+    handleWalletConnection();
   }, [isConnected, address]);
 
       const initializeAuth = async () => {
@@ -75,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Development fallback: create mock Farcaster user
             console.log('Development mode: Creating mock Farcaster user');
             const mockFid = 'dev_farcaster_user_123';
-            const farcasterUser = userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+            const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
             setUser({
               fid: mockFid,
               isAuthenticated: true,
@@ -97,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               const data = await response.json();
               if (data.success && data.user) {
                 // Create user in controller
-                const farcasterUser = userController.getOrCreateUserFromFarcaster(data.user.fid);
+                const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
                 setUser({
                   fid: data.user.fid,
                   isAuthenticated: true,
@@ -151,7 +155,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               // Development mode: create mock Farcaster user
               console.log('Creating mock Farcaster user for development');
               const mockFid = 'dev_farcaster_user_123';
-              const farcasterUser = userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
+              const farcasterUser = await userController.getOrCreateUserFromFarcaster(mockFid, 'dev_user', 'Dev Farcaster User');
               const newUser: User = {
                 fid: mockFid,
                 isAuthenticated: true,
@@ -174,7 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   const data = await response.json();
                   if (data.success && data.user) {
                     // Create user in controller
-                    const farcasterUser = userController.getOrCreateUserFromFarcaster(data.user.fid);
+                    const farcasterUser = await userController.getOrCreateUserFromFarcaster(data.user.fid);
                     const newUser: User = {
                       fid: data.user.fid,
                       isAuthenticated: true,

@@ -48,22 +48,22 @@ class UserController {
   /**
    * Create or get user from wallet address
    */
-  getOrCreateUserFromWallet(address: string): User {
+  async getOrCreateUserFromWallet(address: string): Promise<User> {
     const fid = `wallet_${address}`;
     const username = address.slice(0, 6) + '...' + address.slice(-4);
     const displayName = username;
     
-    return this.getOrCreateUser(fid, username, displayName);
+    return await this.getOrCreateUser(fid, username, displayName);
   }
 
   /**
    * Create or get user from Farcaster FID
    */
-  getOrCreateUserFromFarcaster(fid: string, username?: string, displayName?: string): User {
+  async getOrCreateUserFromFarcaster(fid: string, username?: string, displayName?: string): Promise<User> {
     const finalUsername = username || `fid_${fid}`;
     const finalDisplayName = displayName || `Farcaster User ${fid}`;
     
-    return this.getOrCreateUser(fid, finalUsername, finalDisplayName);
+    return await this.getOrCreateUser(fid, finalUsername, finalDisplayName);
   }
 
   /**
