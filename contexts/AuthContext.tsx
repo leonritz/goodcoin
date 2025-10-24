@@ -79,18 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           // User connected via wallet - create user in controller
           try {
-            // Try to fetch Farcaster data for this wallet address
+            // Try to fetch Farcaster data for this wallet address via our API
             let farcasterData = null;
             try {
-              const fcResponse = await fetch(`https://api.warpcast.com/v2/verifications?address=${address}`);
+              const fcResponse = await fetch(`/api/farcaster-verification?address=${address}`);
               if (fcResponse.ok) {
                 const fcData = await fcResponse.json();
-                if (fcData.result?.fid) {
-                  farcasterData = {
-                    fid: fcData.result.fid,
-                    username: fcData.result.username,
-                    displayName: fcData.result.displayName,
-                  };
+                if (fcData.farcasterData) {
+                  farcasterData = fcData.farcasterData;
                   console.log('Found Farcaster account for wallet:', farcasterData);
                 }
               }
