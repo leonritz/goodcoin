@@ -1,9 +1,13 @@
 /* Form Styles */
 
 .create-post-form {
-  background-color: var(--surface);
-  border-bottom: 2px solid var(--border);
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
   padding: 1.5rem;
+  margin-bottom: 0;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  box-shadow: none;
 }
 
 .create-post-form h2 {
@@ -11,6 +15,9 @@
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-group {
@@ -20,54 +27,62 @@
 .form-label {
   display: block;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.5rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid var(--border);
+  padding: 12px 16px;
+  border-radius: 0;
+  border: 3px solid var(--border);
   font-size: 1rem;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
   background-color: var(--surface);
   color: var(--text-primary);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--primary-pink);
-  box-shadow: 0 0 0 3px var(--primary-pink-lighter);
+  border-color: var(--primary-green);
+  background-color: var(--surface-hover);
 }
 
 .form-input::placeholder {
   color: var(--text-disabled);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-textarea {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid var(--border);
+  padding: 12px 16px;
+  border-radius: 0;
+  border: 3px solid var(--border);
   font-size: 1rem;
   resize: vertical;
   min-height: 6rem;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
   background-color: var(--surface);
   color: var(--text-primary);
-  font-family: inherit;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .form-textarea:focus {
   outline: none;
-  border-color: var(--primary-pink);
-  box-shadow: 0 0 0 3px var(--primary-pink-lighter);
+  border-color: var(--primary-green);
+  background-color: var(--surface-hover);
 }
 
 .form-textarea::placeholder {
   color: var(--text-disabled);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-button-group {
@@ -78,53 +93,58 @@
 
 .form-button-primary {
   flex: 1;
-  background: linear-gradient(135deg, var(--primary-pink), var(--accent-purple));
+  background-color: var(--primary-green);
   color: white;
   font-weight: 700;
-  padding: 0.875rem 1.5rem;
-  border-radius: 0.5rem;
-  border: none;
+  padding: 12px 24px;
+  border-radius: 0;
+  border: 3px solid var(--primary-green-dark);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
   box-shadow: var(--shadow-sm);
   font-size: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-button-primary:hover {
-  background: linear-gradient(135deg, var(--primary-pink-dark), #7B1FA2);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  background-color: var(--primary-green-light);
 }
 
 .form-button-primary:active {
-  transform: translateY(0);
+  background-color: var(--primary-green-dark);
 }
 
 .form-button-primary:disabled {
-  background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+  background-color: var(--text-disabled);
+  border-color: var(--text-disabled);
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .form-button-secondary {
-  background-color: white;
-  color: var(--primary-pink);
-  font-weight: 600;
-  padding: 0.875rem 1.5rem;
-  border-radius: 0.5rem;
-  border: 2px solid var(--primary-pink);
+  background-color: var(--surface);
+  color: var(--primary-green);
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: 0;
+  border: 3px solid var(--primary-green);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
   font-size: 1rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .form-button-secondary:hover {
-  background-color: var(--primary-pink-lighter);
-  border-color: var(--primary-pink-dark);
+  background-color: var(--primary-green);
+  color: white;
 }
 
 .form-button-secondary:active {
-  transform: scale(0.98);
+  background-color: var(--primary-green-dark);
 }
 
 .form-file-input-wrapper {
@@ -135,19 +155,22 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.875rem 1.5rem;
-  background-color: var(--primary-pink-lighter);
-  color: var(--primary-pink-darker);
-  font-weight: 600;
-  border-radius: 0.5rem;
+  padding: 12px 24px;
+  background-color: var(--primary-green);
+  color: white;
+  font-weight: 700;
+  border-radius: 0;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  border: 2px solid var(--primary-pink-light);
+  transition: all 0.1s ease-in-out;
+  border: 3px solid var(--primary-green-dark);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: var(--shadow-sm);
 }
 
 .form-file-input-label:hover {
-  background-color: var(--primary-pink-light);
-  border-color: var(--primary-pink);
+  background-color: var(--primary-green-light);
 }
 
 .form-file-input {
@@ -166,7 +189,8 @@
 .comments-section {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 2px solid var(--border);
+  border-top: 3px solid var(--border);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .comments-header {
@@ -174,14 +198,17 @@
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .comment-item {
-  background-color: var(--surface-hover);
-  padding: 0.875rem;
-  border-radius: 0.5rem;
+  background-color: var(--surface);
+  padding: 1rem;
+  border: 3px solid var(--border);
+  border-radius: 0;
   margin-bottom: 0.75rem;
-  border-left: 3px solid var(--primary-pink-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .comment-header {
@@ -194,12 +221,16 @@
 .comment-author {
   font-weight: 700;
   font-size: 0.875rem;
-  color: var(--primary-pink-dark);
+  color: var(--primary-green);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .comment-timestamp {
   font-size: 0.75rem;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .comment-text {
@@ -219,39 +250,45 @@
 
 .comment-input {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid var(--border);
+  padding: 12px 16px;
+  border-radius: 0;
+  border: 3px solid var(--border);
   font-size: 0.875rem;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .comment-input:focus {
   outline: none;
-  border-color: var(--primary-pink);
-  box-shadow: 0 0 0 3px var(--primary-pink-lighter);
+  border-color: var(--primary-green);
+  background-color: var(--surface-hover);
 }
 
 .comment-submit-button {
-  background: var(--primary-pink);
+  background-color: var(--primary-green);
   color: white;
   font-weight: 700;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  border: none;
+  padding: 12px 24px;
+  border-radius: 0;
+  border: 3px solid var(--primary-green-dark);
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.1s ease-in-out;
   white-space: nowrap;
-}
-
-.comment-submit-button:hover {
-  background: var(--primary-pink-dark);
-  transform: translateY(-1px);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   box-shadow: var(--shadow-sm);
 }
 
+.comment-submit-button:hover {
+  background-color: var(--primary-green-light);
+}
+
 .comment-submit-button:disabled {
-  background: #BDBDBD;
+  background-color: var(--text-disabled);
+  border-color: var(--text-disabled);
   cursor: not-allowed;
 }
 

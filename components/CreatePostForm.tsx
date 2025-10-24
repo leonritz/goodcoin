@@ -7,9 +7,10 @@ import '../styles/forms.css';
 interface CreatePostFormProps {
   currentUserFid: string;
   onPostCreated: () => void;
+  onCancel?: () => void;
 }
 
-export default function CreatePostForm({ currentUserFid, onPostCreated }: CreatePostFormProps) {
+export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel }: CreatePostFormProps) {
   const [description, setDescription] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const [mediaType, setMediaType] = useState<'photo' | 'video'>('photo');
@@ -68,7 +69,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated }: Create
                   value="photo"
                   checked={mediaType === 'photo'}
                   onChange={(e) => setMediaType(e.target.value as 'photo' | 'video')}
-                  style={{ accentColor: 'var(--primary-pink)' }}
+                  style={{ accentColor: 'var(--primary-green)' }}
                 />
                 <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>📷 Photo</span>
               </label>
@@ -78,7 +79,7 @@ export default function CreatePostForm({ currentUserFid, onPostCreated }: Create
                   value="video"
                   checked={mediaType === 'video'}
                   onChange={(e) => setMediaType(e.target.value as 'photo' | 'video')}
-                  style={{ accentColor: 'var(--primary-pink)' }}
+                  style={{ accentColor: 'var(--primary-green)' }}
                 />
                 <span style={{ fontSize: '0.875rem', fontWeight: '600' }}>🎥 Video</span>
               </label>
@@ -86,13 +87,24 @@ export default function CreatePostForm({ currentUserFid, onPostCreated }: Create
           )}
         </div>
 
-        <button
-          type="submit"
-          className="form-button-primary"
-          style={{ width: '100%' }}
-        >
-          🚀 Share Post
-        </button>
+        <div className="form-button-group">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="form-button-secondary"
+            >
+              Cancel
+            </button>
+          )}
+          <button
+            type="submit"
+            className="form-button-primary"
+            style={{ flex: 1 }}
+          >
+            🚀 Share Post
+          </button>
+        </div>
       </form>
     </div>
   );

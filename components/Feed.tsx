@@ -16,6 +16,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserBalance, setCurrentUserBalance] = useState(0);
+  const [isPostFormExpanded, setIsPostFormExpanded] = useState(false);
 
   const loadFeed = useCallback(() => {
     const allPosts = postController.getAllPosts();
@@ -81,11 +82,33 @@ export default function Feed({ currentUserFid }: FeedProps) {
 
       {/* Main Content */}
       <div className="feed-content">
-        {/* Create Post Form */}
-        <CreatePostForm
-          currentUserFid={currentUserFid}
-          onPostCreated={loadFeed}
-        />
+        {/* Collapsible Post Creation Area */}
+        <div className="post-creation-container">
+          {!isPostFormExpanded ? (
+            <div 
+              className="post-creation-trigger"
+              onClick={() => setIsPostFormExpanded(true)}
+            >
+              <div className="post-creation-avatar">
+                {userController.getUserByFid(currentUserFid)?.displayName?.charAt(0).toUpperCase() || '?'}
+              </div>
+              <div className="post-creation-placeholder">
+                Spread Positivity...
+              </div>
+            </div>
+          ) : (
+            <div className="post-creation-expanded">
+              <CreatePostForm
+                currentUserFid={currentUserFid}
+                onPostCreated={() => {
+                  loadFeed();
+                  setIsPostFormExpanded(false);
+                }}
+                onCancel={() => setIsPostFormExpanded(false)}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Feed */}
         <div>

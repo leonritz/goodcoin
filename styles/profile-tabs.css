@@ -2,11 +2,14 @@
 
 .overview-card {
   padding: 1.25rem;
-  border-radius: 1rem;
-  border: 3px solid;
-  transition: all 0.3s ease;
+  border-radius: 0;
+  border: 3px solid var(--border);
+  transition: all 0.1s ease;
   position: relative;
   overflow: hidden;
+  background-color: var(--surface);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  box-shadow: var(--shadow-sm);
 }
 
 .overview-card::before {
@@ -25,19 +28,24 @@
 }
 
 .overview-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  background-color: var(--surface-hover);
+  border-color: var(--primary-green);
 }
 
 .stat-icon {
   width: 3.5rem;
   height: 3.5rem;
-  border-radius: 50%;
+  border: 3px solid var(--primary-green-dark);
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.75rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--primary-green);
+  color: white;
+  box-shadow: var(--shadow-sm);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
   animation: pulse-subtle 2s ease-in-out infinite;
 }
 
@@ -55,22 +63,32 @@
   font-weight: 900;
   line-height: 1;
   margin-bottom: 0.25rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .stat-label {
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   opacity: 0.9;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Transaction Cards */
 .transaction-card {
   padding: 1.25rem;
-  border-radius: 1rem;
-  border: 2px solid;
-  transition: all 0.3s ease;
+  border-radius: 0;
+  border: 3px solid var(--border);
+  transition: all 0.1s ease;
   position: relative;
   overflow: hidden;
+  background-color: var(--surface);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1rem;
 }
 
 .transaction-card::after {
@@ -92,37 +110,47 @@
 }
 
 .transaction-card:hover {
-  transform: translateX(8px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  background-color: var(--surface-hover);
+  border-color: var(--primary-green);
 }
 
 .transaction-avatar {
   width: 3.5rem;
   height: 3.5rem;
-  border-radius: 50%;
+  border: 3px solid var(--primary-green-dark);
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   font-weight: 700;
   color: white;
+  background-color: var(--primary-green);
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-sm);
   position: relative;
   z-index: 1;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
 }
 
 .amount-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid var(--primary-green-dark);
+  border-radius: 0;
   font-weight: 900;
   font-size: 1.25rem;
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background-color: var(--primary-green);
+  color: white;
+  box-shadow: var(--shadow-sm);
   position: relative;
   z-index: 1;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Net Impact Special */
@@ -158,8 +186,7 @@
 }
 
 .net-impact-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  background-color: var(--surface-hover);
 }
 
 /* Empty State */
@@ -186,13 +213,19 @@
 .empty-state-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #374151;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .empty-state-subtitle {
   font-size: 0.875rem;
-  color: #6B7280;
+  color: var(--text-secondary);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Loading animation for cards */

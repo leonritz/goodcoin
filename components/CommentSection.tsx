@@ -58,7 +58,15 @@ export default function CommentSection({ postId, currentUserFid, showComments, o
           {/* Comment List */}
           <div style={{ maxHeight: '20rem', overflowY: 'auto', marginBottom: '1rem' }}>
             {comments.length === 0 ? (
-              <p style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '1.5rem' }}>
+              <p style={{ 
+                textAlign: 'center', 
+                color: 'var(--text-secondary)', 
+                padding: '1.5rem',
+                fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontWeight: '700'
+              }}>
                 No comments yet. Be the first to comment!
               </p>
             ) : (

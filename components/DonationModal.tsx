@@ -103,12 +103,20 @@ export default function DonationModal({
               <h3 style={{ 
                 fontSize: '1.5rem', 
                 fontWeight: '700', 
-                color: 'var(--accent-green)',
-                marginBottom: '0.5rem'
+                color: 'var(--primary-green)',
+                marginBottom: '0.5rem',
+                fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
               }}>
                 Donation Successful!
               </h3>
-              <p style={{ color: 'var(--text-secondary)' }}>
+              <p style={{ 
+                color: 'var(--text-secondary)',
+                fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace",
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
                 You donated {amount} Goodcoins to {recipientName}
               </p>
             </div>

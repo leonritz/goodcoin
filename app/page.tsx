@@ -35,10 +35,32 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-          <p className="text-lg font-semibold text-gray-700">Loading Goodcoin...</p>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'var(--background)',
+        fontFamily: "'Monaco', 'Menlo', 'Consolas', monospace"
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            display: 'inline-block',
+            width: '48px',
+            height: '48px',
+            border: '3px solid var(--primary-green-lighter)',
+            borderTop: '3px solid var(--primary-green)',
+            borderRadius: '0',
+            animation: 'spin 1s linear infinite',
+            marginBottom: '1rem'
+          }}></div>
+          <p style={{
+            fontSize: '1.125rem',
+            fontWeight: '700',
+            color: 'var(--text-primary)',
+            textTransform: 'uppercase',
+            letterSpacing: '2px'
+          }}>Loading Goodcoin...</p>
         </div>
       </div>
     );

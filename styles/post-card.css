@@ -2,9 +2,13 @@
 
 .post-card {
   background-color: var(--surface);
-  border-bottom: 2px solid var(--border);
+  border: 3px solid var(--border);
+  border-radius: 0;
   padding: 1.25rem;
-  transition: all 0.2s ease-in-out;
+  margin-bottom: 1rem;
+  transition: all 0.1s ease-in-out;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  box-shadow: var(--shadow-sm);
 }
 
 .post-card:hover {
@@ -21,14 +25,17 @@
 .post-avatar {
   width: 3rem;
   height: 3rem;
-  background: linear-gradient(135deg, var(--primary-pink), var(--accent-purple));
-  border-radius: 9999px;
+  background-color: var(--primary-green);
+  border: 3px solid var(--primary-green-dark);
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
   font-size: 1.25rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
 }
@@ -38,11 +45,17 @@
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.125rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .post-user-info p {
   font-size: 0.875rem;
   color: var(--text-secondary);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .post-description {
@@ -51,11 +64,13 @@
   color: var(--text-primary);
   margin-bottom: 1rem;
   white-space: pre-wrap;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .post-media-container {
   margin-bottom: 1rem;
-  border-radius: 0.75rem;
+  border: 3px solid var(--border);
+  border-radius: 0;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
 }
@@ -66,6 +81,9 @@
   max-height: 32rem;
   object-fit: cover;
   display: block;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 .post-media-video {
@@ -80,34 +98,36 @@
   align-items: center;
   gap: 1.5rem;
   padding-top: 0.75rem;
-  border-top: 1px solid var(--border);
+  border-top: 3px solid var(--border);
 }
 
 .post-action-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  border-radius: 0.5rem;
-  background-color: transparent;
-  border: 2px solid var(--border);
+  padding: 0.75rem 1rem;
+  border-radius: 0;
+  background-color: var(--surface);
+  border: 3px solid var(--border);
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.post-action-button:hover {
-  background-color: var(--surface-hover);
-  border-color: var(--primary-pink-light);
-  color: var(--primary-pink);
-  transform: translateY(-1px);
+  transition: all 0.1s ease-in-out;
   box-shadow: var(--shadow-sm);
 }
 
+.post-action-button:hover {
+  background-color: var(--primary-green);
+  border-color: var(--primary-green-dark);
+  color: white;
+}
+
 .post-action-button:active {
-  transform: translateY(0);
+  background-color: var(--primary-green-dark);
 }
 
 .post-action-button svg {
@@ -117,53 +137,54 @@
 
 /* Like Button */
 .post-action-like {
-  border-color: var(--primary-pink-light);
-  color: var(--primary-pink);
+  border-color: var(--primary-green);
+  color: var(--primary-green);
 }
 
 .post-action-like:hover {
-  background-color: var(--primary-pink-lighter);
-  border-color: var(--primary-pink);
+  background-color: var(--primary-green);
+  border-color: var(--primary-green-dark);
+  color: white;
 }
 
 .post-action-like.liked {
-  background-color: var(--primary-pink);
+  background-color: var(--primary-green);
   color: white;
-  border-color: var(--primary-pink-dark);
+  border-color: var(--primary-green-dark);
 }
 
 .post-action-like.liked:hover {
-  background-color: var(--primary-pink-dark);
+  background-color: var(--primary-green-light);
 }
 
 /* Comment Button */
 .post-action-comment {
-  border-color: var(--accent-blue);
-  color: var(--accent-blue);
+  border-color: var(--primary-green-lighter);
+  color: var(--primary-green-lighter);
 }
 
 .post-action-comment:hover {
-  background-color: #E3F2FD;
-  border-color: #1565C0;
+  background-color: var(--primary-green-lighter);
+  border-color: var(--primary-green);
+  color: white;
 }
 
 /* Donate Button */
 .post-action-donate {
-  background: linear-gradient(135deg, var(--primary-pink), var(--accent-purple));
+  background-color: var(--primary-green);
   color: white;
-  border: none;
+  border: 3px solid var(--primary-green-dark);
   font-weight: 700;
   box-shadow: var(--shadow-sm);
 }
 
 .post-action-donate:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--primary-pink-dark), #7B1FA2);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background-color: var(--primary-green-light);
 }
 
 .post-action-donate:disabled {
-  background: linear-gradient(135deg, #E0E0E0, #BDBDBD);
+  background-color: var(--text-disabled);
+  border-color: var(--text-disabled);
   cursor: not-allowed;
   opacity: 0.6;
   box-shadow: none;
@@ -175,12 +196,16 @@
 
 .post-donations-badge {
   margin-left: auto;
-  background-color: #FFF3E0;
-  color: #E65100;
-  padding: 0.5rem 1rem;
-  border-radius: 9999px;
+  background-color: var(--primary-green);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: 3px solid var(--primary-green-dark);
+  border-radius: 0;
   font-weight: 700;
   font-size: 0.875rem;
-  border: 2px solid #FFB74D;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: var(--shadow-sm);
 }
 
