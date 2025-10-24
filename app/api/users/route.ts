@@ -26,16 +26,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { fid, username, displayName, profileImage, balance } = body;
 
+    console.log('POST /api/users - Creating user:', { fid, username, displayName });
+
     if (!fid || !username || !displayName) {
+      console.error('Missing required fields:', { fid, username, displayName });
       return NextResponse.json(
         { error: 'Missing required fields: fid, username, displayName' },
         { status: 400 }
       );
     }
 
-    const existingUser = await db.get(`users:${fid}`);
-    if (existingUser) {
-      return NextResponse.json(existingUser);
+    try {
+      const existingUser = await db.get(`users:${fid}`);
+      if (existingUser) {
+        console.log('User already exists:', fid);
+        return NextResponse.json(existingUser);
+      }
+    } catch (dbError) {
+      console.error('Database get error:', dbError);
+      // Continue to create user even if get fails
     }
 
     const newUser = {
@@ -48,12 +57,22 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-    await db.set(`users:${fid}`, newUser);
+    try {
+      await db.set(`users:${fid}`, newUser);
+      console.log('User created successfully:', fid);
+    } catch (dbError) {
+      console.error('Database set error:', dbError);
+      throw new Error(`Database error: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
+    }
 
     return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
     console.error('Error creating user:', error);
-    return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ 
+      error: 'Failed to create user',
+      details: errorMessage 
+    }, { status: 500 });
   }
 }
 
