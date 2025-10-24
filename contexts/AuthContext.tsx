@@ -53,6 +53,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const handleWalletConnection = async () => {
       if (isConnected && address) {
+        // Check if we already have this user authenticated
+        if (user?.address === address && user?.authMethod === 'wallet') {
+          console.log('Wallet already authenticated:', address);
+          return; // Already authenticated with this wallet
+        }
+        
+        console.log('Authenticating wallet:', address);
         // User connected via wallet - create user in controller
         const walletUser = await userController.getOrCreateUserFromWallet(address);
         setUser({
@@ -70,24 +77,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           method: 'wallet',
           address: address,
         }));
+        setIsLoading(false);
       } else if (!isConnected && user?.authMethod === 'wallet') {
         // User disconnected wallet
+        console.log('Wallet disconnected');
         setUser(null);
         localStorage.removeItem('goodcoin_auth');
       }
     };
     
     handleWalletConnection();
-  }, [isConnected, address]);
+  }, [isConnected, address, user?.address, user?.authMethod]);
 
       const initializeAuth = async () => {
         try {
-          // Check for skip authentication first
+          // Check for saved authentication
           const savedAuth = localStorage.getItem('goodcoin_auth');
           if (savedAuth) {
             const authData = JSON.parse(savedAuth);
+            
+            // Skip authentication user
             if (authData.method === 'farcaster' && authData.fid === 'test_user_123') {
-              // Skip authentication user
               console.log('Skip authentication: Creating test user');
               const testUser = await userController.getOrCreateUserFromFarcaster('test_user_123', 'test_user', 'Test User');
               setUser({
@@ -98,6 +108,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 displayName: testUser.displayName,
                 profileImage: testUser.profileImage,
               });
+              setIsLoading(false);
+              return;
+            }
+            
+            // Wallet authentication - wait for wagmi to connect
+            if (authData.method === 'wallet' && authData.address) {
+              console.log('Restoring wallet authentication for:', authData.address);
+              // The wallet connection will be handled by the useEffect that watches isConnected/address
+              // Just wait a moment for wagmi to initialize
               setIsLoading(false);
               return;
             }
@@ -213,15 +232,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               }
             }
       } else if (method === 'wallet') {
+        // Check if wallet is already connected
+        if (isConnected && address) {
+          console.log('Wallet already connected:', address);
+          // The useEffect will handle authentication
+          setIsLoading(false);
+          return;
+        }
+        
         // Connect to the first available wallet connector
         const walletConnector = connectors.find(c => 
           c.name === 'MetaMask' || 
           c.name === 'WalletConnect' || 
-          c.name === 'Coinbase Wallet'
+          c.name === 'Coinbase Wallet' ||
+          c.name === 'Phantom'
         );
         
         if (walletConnector) {
+          console.log('Connecting to wallet:', walletConnector.name);
           await connect({ connector: walletConnector });
+          // The useEffect will handle setting the user after connection
         } else {
           throw new Error('No wallet connector available');
         }
