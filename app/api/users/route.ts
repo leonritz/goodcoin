@@ -88,10 +88,20 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const user = await db.get(`users:${fid}`) as any;
-    if (!user) {
+    const userData = await db.get(`users:${fid}`);
+    if (!userData) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    const user = userData as {
+      fid: string;
+      username: string;
+      displayName: string;
+      profileImage?: string;
+      balance: number;
+      createdAt: string;
+      updatedAt: string;
+    };
 
     // Update only the fields that are provided
     if (balance !== undefined) {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import { Post, User } from '../model';
 import { postController, userController } from '../controller';
 import CommentSection from './CommentSection';
@@ -118,10 +119,13 @@ export default function PostCard({
       {/* Media */}
       {post.mediaUrl && post.mediaType === 'photo' && (
         <div className="post-media-container">
-          <img
+          <Image
             src={post.mediaUrl}
             alt="Post media"
             className="post-media-image"
+            width={600}
+            height={400}
+            style={{ width: '100%', height: 'auto' }}
           />
         </div>
       )}
