@@ -2,11 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '../contexts/AuthContext';
 import { postController, userController } from '../controller';
 import { Post } from '../model';
 import PostCard from './PostCard';
 import CreatePostForm from './CreatePostForm';
+import AuthModal from './AuthModal';
 import '../styles/feed.css';
+import '../styles/auth-modal.css';
 
 interface FeedProps {
   currentUserFid: string;
@@ -14,9 +17,11 @@ interface FeedProps {
 
 export default function Feed({ currentUserFid }: FeedProps) {
   const router = useRouter();
+  const { user, disconnect } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUserBalance, setCurrentUserBalance] = useState(0);
   const [isPostFormExpanded, setIsPostFormExpanded] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const loadFeed = useCallback(() => {
     const allPosts = postController.getAllPosts();
@@ -26,19 +31,17 @@ export default function Feed({ currentUserFid }: FeedProps) {
     setCurrentUserBalance(balance);
   }, [currentUserFid]);
 
-  const switchUser = () => {
-    // Toggle between two fixed test users
-    const user1Fid = 'test_user_alice';
-    const user2Fid = 'test_user_bob';
-    
-    // Create both users if they don't exist
-    userController.getOrCreateUser(user1Fid, 'alice', 'Alice 👩', undefined);
-    userController.getOrCreateUser(user2Fid, 'bob', 'Bob 👨', undefined);
-    
-    // Toggle to the other user
-    const newFid = currentUserFid === user1Fid ? user2Fid : user1Fid;
-    localStorage.setItem('currentUserFid', newFid);
-    window.location.reload();
+  const handleProfileClick = () => {
+    if (user?.isAuthenticated) {
+      router.push('/profile');
+    } else {
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleDisconnect = () => {
+    disconnect();
+    router.push('/');
   };
 
   useEffect(() => {
@@ -52,30 +55,32 @@ export default function Feed({ currentUserFid }: FeedProps) {
         <div className="feed-header-content">
           <h1 className="feed-title">Goodcoin</h1>
           <div className="feed-balance-container">
-            <button
-              onClick={switchUser}
-              className="feed-profile-button"
-              title="Switch to New User (for testing)"
-              style={{ marginRight: '0.5rem' }}
-            >
-              <svg className="feed-profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-            </button>
             <div className="feed-balance-badge">
               <span className="feed-balance-text">
                 💰 {currentUserBalance} Coins
               </span>
             </div>
             <button
-              onClick={() => router.push('/profile')}
+              onClick={handleProfileClick}
               className="feed-profile-button"
-              title="View Profile"
+              title={user?.isAuthenticated ? "View Profile" : "Sign In"}
             >
               <svg className="feed-profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </button>
+            {user?.isAuthenticated && (
+              <button
+                onClick={handleDisconnect}
+                className="feed-profile-button"
+                title="Disconnect"
+                style={{ marginLeft: '0.5rem' }}
+              >
+                <svg className="feed-profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -133,6 +138,12 @@ export default function Feed({ currentUserFid }: FeedProps) {
           )}
         </div>
       </div>
+      
+      {/* Authentication Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)} 
+      />
     </div>
   );
 }
