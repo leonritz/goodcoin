@@ -84,6 +84,17 @@ BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxxxxxxxx
 
 ## 🧪 Testing Upload
 
+### Option 1: Without Blob Storage (Local Development)
+
+If you haven't set up Vercel Blob yet, you can still test with URLs:
+
+1. Upload your image to https://imgur.com (free, no account needed)
+2. Right-click the image → "Copy image address"
+3. In your app, paste the URL instead of uploading
+4. Works perfectly for testing!
+
+### Option 2: With Blob Storage (Production)
+
 1. Deploy to Vercel (with blob store setup)
 2. Go to your live site
 3. Click "Create Post"

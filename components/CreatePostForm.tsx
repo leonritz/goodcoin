@@ -63,7 +63,22 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Upload failed');
+        const errorMessage = error.error || 'Upload failed';
+        const errorDetails = error.details || '';
+        
+        // Show helpful message based on error type
+        if (response.status === 503 || errorMessage.includes('not configured')) {
+          throw new Error(
+            'File upload is not set up yet.\n\n' +
+            'For now, please use the URL option:\n' +
+            '1. Upload your image to imgur.com or another host\n' +
+            '2. Copy the image URL\n' +
+            '3. Paste it in the URL field below\n\n' +
+            'To enable direct uploads, set up Vercel Blob Storage (see UPLOAD_SETUP.md)'
+          );
+        }
+        
+        throw new Error(`${errorMessage}${errorDetails ? '\n' + errorDetails : ''}`);
       }
 
       const data = await response.json();
@@ -73,7 +88,8 @@ export default function CreatePostForm({ currentUserFid, onPostCreated, onCancel
       setUploadProgress(100);
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert(error instanceof Error ? error.message : 'Failed to upload file');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to upload file';
+      alert(errorMsg);
       setPreviewUrl('');
     } finally {
       setIsUploading(false);

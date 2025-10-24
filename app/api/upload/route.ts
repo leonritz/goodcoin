@@ -31,25 +31,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Upload to Vercel Blob
-    const blob = await put(file.name, file, {
-      access: 'public',
-      addRandomSuffix: true,
-    });
+    // Check if Vercel Blob is configured
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      console.error('BLOB_READ_WRITE_TOKEN not configured');
+      return NextResponse.json(
+        { 
+          error: 'File upload not configured. Please set up Vercel Blob Storage in your Vercel dashboard.',
+          details: 'Missing BLOB_READ_WRITE_TOKEN environment variable'
+        },
+        { status: 503 }
+      );
+    }
 
-    // Determine media type
-    const mediaType = validImageTypes.includes(file.type) ? 'photo' : 'video';
+    try {
+      // Upload to Vercel Blob
+      const blob = await put(file.name, file, {
+        access: 'public',
+        addRandomSuffix: true,
+      });
 
-    return NextResponse.json({
-      url: blob.url,
-      mediaType,
-      size: file.size,
-      name: file.name,
-    });
+      // Determine media type
+      const mediaType = validImageTypes.includes(file.type) ? 'photo' : 'video';
+
+      return NextResponse.json({
+        url: blob.url,
+        mediaType,
+        size: file.size,
+        name: file.name,
+      });
+    } catch (blobError) {
+      console.error('Vercel Blob error:', blobError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to upload to storage',
+          details: blobError instanceof Error ? blobError.message : 'Unknown blob storage error'
+        },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error('Error uploading file:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { 
+        error: 'Failed to upload file',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
