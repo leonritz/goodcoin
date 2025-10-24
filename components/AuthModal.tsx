@@ -110,6 +110,19 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="wallet-options">
               <h4 className="wallet-options-title">Connect Wallet</h4>
               
+              {/* Debug info - remove this later */}
+              <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
+                Available connectors: {connectors.map(c => `${c.name} (${c.type})`).join(', ')}
+              </div>
+              <div style={{ fontSize: '10px', color: '#666', marginBottom: '10px' }}>
+                Filtered connectors: {connectors
+                  .filter((connector, index, self) => 
+                    index === self.findIndex(c => c.name === connector.name) &&
+                    connector.name !== 'Injected'
+                  )
+                  .map(c => c.name).join(', ')}
+              </div>
+              
               {connectors
                 .filter((connector, index, self) => 
                   // Remove duplicates by name and filter out generic "Injected" connector
