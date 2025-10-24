@@ -17,10 +17,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   // Close modal when user is authenticated
   useEffect(() => {
+    console.log('AuthModal: user state changed:', { 
+      isAuthenticated: user?.isAuthenticated, 
+      authMethod: user?.authMethod,
+      address: user?.address,
+      fid: user?.fid 
+    });
+    
     if (user?.isAuthenticated) {
+      console.log('AuthModal: User is authenticated, closing modal');
       onClose();
     }
-  }, [user?.isAuthenticated, onClose]);
+  }, [user?.isAuthenticated, onClose, user]);
 
   if (!isOpen) return null;
 

@@ -10,6 +10,14 @@ export default function Home() {
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   useEffect(() => {
+    console.log('Home: Auth state changed:', { 
+      isLoading, 
+      isAuthenticated: user?.isAuthenticated,
+      authMethod: user?.authMethod,
+      fid: user?.fid,
+      address: user?.address
+    });
+    
     // Show auth modal if user is not authenticated and not loading
     if (!isLoading && !user?.isAuthenticated) {
       setShowAuthModal(true);

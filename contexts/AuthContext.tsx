@@ -52,40 +52,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Update user when wallet connection changes
   useEffect(() => {
     const handleWalletConnection = async () => {
-      if (isConnected && address) {
-        // Check if we already have this user authenticated
-        if (user?.address === address && user?.authMethod === 'wallet') {
-          console.log('Wallet already authenticated:', address);
-          return; // Already authenticated with this wallet
+      try {
+        console.log('useEffect triggered - isConnected:', isConnected, 'address:', address);
+        
+        if (isConnected && address) {
+          // Check if we already have this user authenticated
+          if (user?.address === address && user?.authMethod === 'wallet') {
+            console.log('Wallet already authenticated:', address);
+            return; // Already authenticated with this wallet
+          }
+          
+          console.log('Authenticating wallet:', address);
+          
+          // User connected via wallet - create user in controller
+          try {
+            const walletUser = await userController.getOrCreateUserFromWallet(address);
+            console.log('Got wallet user from controller:', walletUser);
+            
+            const newUser = {
+              fid: walletUser.fid,
+              address,
+              isAuthenticated: true,
+              authMethod: 'wallet' as const,
+              username: walletUser.username,
+              displayName: walletUser.displayName,
+              profileImage: walletUser.profileImage,
+            };
+            
+            console.log('Setting wallet user:', newUser);
+            setUser(newUser);
+            
+            // Save auth state
+            localStorage.setItem('goodcoin_auth', JSON.stringify({
+              method: 'wallet',
+              address: address,
+            }));
+            console.log('Wallet authentication complete!');
+          } catch (error) {
+            console.error('Error creating wallet user:', error);
+            // Still set isLoading to false so user can try again
+          }
+          
+          setIsLoading(false);
+        } else if (!isConnected && user?.authMethod === 'wallet') {
+          // User disconnected wallet
+          console.log('Wallet disconnected');
+          setUser(null);
+          localStorage.removeItem('goodcoin_auth');
+          setIsLoading(false);
         }
-        
-        console.log('Authenticating wallet:', address);
-        // User connected via wallet - create user in controller
-        const walletUser = await userController.getOrCreateUserFromWallet(address);
-        const newUser = {
-          fid: walletUser.fid,
-          address,
-          isAuthenticated: true,
-          authMethod: 'wallet' as const,
-          username: walletUser.username,
-          displayName: walletUser.displayName,
-          profileImage: walletUser.profileImage,
-        };
-        
-        console.log('Setting wallet user:', newUser);
-        setUser(newUser);
-        
-        // Save auth state
-        localStorage.setItem('goodcoin_auth', JSON.stringify({
-          method: 'wallet',
-          address: address,
-        }));
-        setIsLoading(false);
-      } else if (!isConnected && user?.authMethod === 'wallet') {
-        // User disconnected wallet
-        console.log('Wallet disconnected');
-        setUser(null);
-        localStorage.removeItem('goodcoin_auth');
+      } catch (error) {
+        console.error('Error in handleWalletConnection:', error);
         setIsLoading(false);
       }
     };

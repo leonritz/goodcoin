@@ -63,6 +63,22 @@ export default function Feed({ currentUserFid }: FeedProps) {
         <div className="feed-header-content">
           <h1 className="feed-title">Goodcoin</h1>
           <div className="feed-balance-container">
+            {/* User Info Display */}
+            {user?.isAuthenticated && (
+              <div className="feed-user-info" title={user?.address || user?.fid}>
+                <div className="feed-user-avatar">
+                  {user?.authMethod === 'wallet' ? '👛' : '🎭'}
+                </div>
+                <span className="feed-user-name">
+                  {user?.displayName || user?.username || 
+                   (user?.address ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}` : 'User')}
+                </span>
+                {user?.authMethod === 'wallet' && user?.address && (
+                  <span className="feed-user-badge">WALLET</span>
+                )}
+              </div>
+            )}
+            
             <div className="feed-balance-badge">
               <span className="feed-balance-text">
                 💰 {currentUserBalance} Coins
@@ -80,9 +96,8 @@ export default function Feed({ currentUserFid }: FeedProps) {
             {user?.isAuthenticated && (
               <button
                 onClick={handleDisconnect}
-                className="feed-profile-button"
+                className="feed-profile-button feed-disconnect-button"
                 title="Disconnect"
-                style={{ marginLeft: '0.5rem' }}
               >
                 <svg className="feed-profile-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
