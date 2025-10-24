@@ -47,7 +47,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
       }
     } catch (err) {
       console.error('Wallet connection failed:', err);
-      setError(err instanceof Error ? err.message : 'Connection failed');
+      // Handle specific error types
+      if (err instanceof Error) {
+        if (err.message.includes('User rejected')) {
+          setError('Connection cancelled by user');
+        } else if (err.message.includes('Already processing')) {
+          setError('Connection already in progress');
+        } else {
+          setError('Connection failed. Please try again.');
+        }
+      } else {
+        setError('Connection failed. Please try again.');
+      }
     } finally {
       setIsConnecting(false);
     }
@@ -99,7 +110,13 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <div className="wallet-options">
               <h4 className="wallet-options-title">Connect Wallet</h4>
               
-              {connectors.map((connector) => (
+              {connectors
+                .filter((connector, index, self) => 
+                  // Remove duplicates by name and filter out generic "Injected" connector
+                  index === self.findIndex(c => c.name === connector.name) &&
+                  connector.name !== 'Injected'
+                )
+                .map((connector) => (
                 <button
                   key={connector.name}
                   className="auth-option wallet-option"
@@ -118,6 +135,16 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       </svg>
                     )}
                     {connector.name === 'WalletConnect' && (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
+                      </svg>
+                    )}
+                    {connector.name === 'Phantom' && (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
+                      </svg>
+                    )}
+                    {!['MetaMask', 'Coinbase Wallet', 'WalletConnect', 'Phantom'].includes(connector.name) && (
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"/>
                       </svg>
