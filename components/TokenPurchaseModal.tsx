@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 // import { parseEther, formatEther } from 'viem'; // Unused for now
 import { tokenService } from '../lib/tokenService';
+import { uniswapService } from '../lib/uniswapService';
 import { TOKEN_CONFIG } from '../lib/tokenConfig';
 
 interface TokenPurchaseModalProps {
@@ -20,6 +21,8 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
   const [tokenBalance, setTokenBalance] = useState('0');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [quote, setQuote] = useState<{ tokenAmount: string; priceImpact: number } | null>(null);
+  const [isGettingQuote, setIsGettingQuote] = useState(false);
 
   const { writeContract: _writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
@@ -48,13 +51,35 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
     }
   }, [address, isConnected, loadBalances]);
 
+  // Get quote from Uniswap when ETH amount changes
+  const getQuote = useCallback(async (amount: string) => {
+    if (!amount || parseFloat(amount) <= 0) {
+      setQuote(null);
+      return;
+    }
+
+    setIsGettingQuote(true);
+    try {
+      const uniswapQuote = await uniswapService.getQuote(amount);
+      setQuote(uniswapQuote);
+      setTokenAmount(uniswapQuote.tokenAmount);
+    } catch (error) {
+      console.error('Error getting quote:', error);
+      // Fallback to simple calculation
+      const calculated = tokenService.calculateTokenAmountFromEth(amount);
+      setTokenAmount(calculated);
+      setQuote(null);
+    } finally {
+      setIsGettingQuote(false);
+    }
+  }, []);
+
   // Calculate token amount when ETH amount changes
   useEffect(() => {
     if (ethAmount) {
-      const calculated = tokenService.calculateTokenAmountFromEth(ethAmount);
-      setTokenAmount(calculated);
+      getQuote(ethAmount);
     }
-  }, [ethAmount]);
+  }, [ethAmount, getQuote]);
 
   // Handle successful transaction
   useEffect(() => {
@@ -88,18 +113,32 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
     setError('');
 
     try {
-      // For now, we'll simulate a token purchase
-      // In a real implementation, you'd integrate with a DEX like Uniswap
-      // or create a direct purchase mechanism
+      // Get a quote from Uniswap to show estimated tokens
+      const quote = await uniswapService.getQuote(ethAmount);
       
-      // This is a placeholder - you'll need to implement the actual purchase logic
-      // based on your token's distribution mechanism
+      if (parseFloat(quote.tokenAmount) === 0) {
+        setError('Unable to get quote from Uniswap. The token may not have sufficient liquidity.');
+        return;
+      }
       
-      setError('Token purchase functionality needs to be implemented with your specific token distribution mechanism');
+      // Redirect to Uniswap for the actual token swap
+      const uniswapUrl = uniswapService.getSwapUrl(ethAmount);
+      
+      // Open Uniswap in a new tab
+      window.open(uniswapUrl, '_blank');
+      
+      // Show success message with quote details
+      setError('');
+      alert(`Redirecting to Uniswap to purchase approximately ${parseFloat(quote.tokenAmount).toFixed(4)} GOOD tokens for ${ethAmount} ETH. Please complete the swap on Uniswap.`);
+      
+      // Close the modal after a short delay
+      setTimeout(() => {
+        onClose();
+      }, 2000);
       
     } catch (error) {
       console.error('Error purchasing tokens:', error);
-      setError('Failed to purchase tokens. Please try again.');
+      setError('Failed to initiate token purchase. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +156,7 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Purchase GoodCoin Tokens</h2>
+          <h2>Buy GoodCoin Tokens</h2>
           <button className="modal-close" onClick={handleClose}>
             ×
           </button>
@@ -142,6 +181,11 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
                 </div>
               </div>
 
+              {/* Description */}
+              <div className="purchase-description">
+                <p>This will redirect you to Uniswap to complete the token swap. You&apos;ll be able to swap your ETH for GOOD tokens at the current market rate.</p>
+              </div>
+
               {/* Purchase Form */}
               <div className="purchase-form">
                 <div className="form-group">
@@ -164,9 +208,25 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
                 <div className="form-group">
                   <label>You will receive</label>
                   <div className="token-amount-display">
-                    <span className="token-amount">{parseFloat(tokenAmount).toFixed(4)}</span>
-                    <span className="token-symbol">GOOD</span>
+                    {isGettingQuote ? (
+                      <span className="loading-text">Getting quote...</span>
+                    ) : (
+                      <>
+                        <span className="token-amount">{parseFloat(tokenAmount).toFixed(4)}</span>
+                        <span className="token-symbol">GOOD</span>
+                      </>
+                    )}
                   </div>
+                  {quote && (
+                    <div className="quote-info">
+                      <div className="quote-detail">
+                        <span>Price Impact: {quote.priceImpact.toFixed(2)}%</span>
+                      </div>
+                      <div className="quote-source">
+                        <span>Quote from Uniswap</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {error && (
@@ -186,9 +246,9 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
                   <button
                     className="btn-primary"
                     onClick={handlePurchase}
-                    disabled={isLoading || isPending || isConfirming || !ethAmount}
+                    disabled={isLoading || isPending || isConfirming || !ethAmount || isGettingQuote}
                   >
-                    {isLoading || isPending || isConfirming ? 'Processing...' : 'Purchase Tokens'}
+                    {isLoading ? 'Getting Quote...' : isPending || isConfirming ? 'Processing...' : 'Buy on Uniswap'}
                   </button>
                 </div>
               </div>
