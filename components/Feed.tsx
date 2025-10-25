@@ -8,6 +8,7 @@ import { Post } from '../model';
 import PostCard from './PostCard';
 import CreatePostForm from './CreatePostForm';
 import AuthModal from './AuthModal';
+import { sortPostsByScore } from '../lib/postScoring';
 import '../styles/feed.css';
 import '../styles/auth-modal.css';
 
@@ -28,7 +29,23 @@ export default function Feed({ currentUserFid }: FeedProps) {
     try {
       setIsLoading(true);
       const allPosts = await postController.getAllPosts();
-      setPosts(allPosts);
+      
+      // Sort posts by score algorithm
+      // Higher engagement (likes + comments) = higher score
+      // More flags = lower score  
+      // Newer posts = higher score (time decay)
+      const postsWithFlags = allPosts.map(post => {
+        // Add flagCount to post data for scoring
+        const postWithFlag = post as Post & { flagCount?: number };
+        if (!postWithFlag.flagCount) {
+          postWithFlag.flagCount = 0;
+        }
+        return postWithFlag;
+      });
+      
+      const scoredPosts = sortPostsByScore(postsWithFlags);
+      
+      setPosts(scoredPosts);
     } catch (error) {
       console.error('Error loading feed:', error);
     } finally {
