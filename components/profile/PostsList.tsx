@@ -7,7 +7,6 @@ import '../../styles/profile-tabs.css';
 interface PostsListProps {
   posts: Post[];
   currentUserFid: string;
-  currentUserBalance: number;
   emptyMessage: string;
   getUser: (fid: string) => Promise<unknown>;
   onUpdate: () => void;
@@ -16,7 +15,6 @@ interface PostsListProps {
 export default function PostsList({
   posts,
   currentUserFid,
-  currentUserBalance,
   emptyMessage,
   onUpdate,
 }: PostsListProps) {
@@ -44,7 +42,6 @@ export default function PostsList({
           key={post.id}
           post={post}
           currentUserFid={currentUserFid}
-          currentUserBalance={currentUserBalance}
           onUpdate={onUpdate}
         />
       ))}

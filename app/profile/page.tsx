@@ -21,8 +21,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [user, setUser] = useState<User | undefined>(undefined);
   
-  // User data
-  const [balance, setBalance] = useState(0);
+  // Removed virtual balance tracking
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [likedPosts, setLikedPosts] = useState<Post[]>([]);
   const [donationsSent, setDonationsSent] = useState<Transaction[]>([]);
@@ -56,9 +55,7 @@ export default function ProfilePage() {
       const userData = await userController.getUserByFid(fid);
       setUser(userData);
 
-      // Get user balance
-      const userBalance = await userController.getUserBalance(fid);
-      setBalance(userBalance);
+      // Removed virtual balance loading
 
       // Get user's posts
       const posts = await postController.getPostsByUser(fid);
@@ -127,15 +124,14 @@ export default function ProfilePage() {
 
       {/* Profile Content */}
       <div className="max-w-2xl mx-auto">
-        {/* Profile Header with Stats */}
-        <ProfileHeader
-          user={user}
-          balance={balance}
-          postsCount={userPosts.length}
-          totalDonated={totalDonated}
-          totalReceived={totalReceived}
-          onUpdate={refreshData}
-        />
+            {/* Profile Header with Stats */}
+            <ProfileHeader
+              user={user}
+              postsCount={userPosts.length}
+              totalDonated={totalDonated}
+              totalReceived={totalReceived}
+              onUpdate={refreshData}
+            />
 
         {/* Tab Navigation */}
         <ProfileTabs
@@ -166,7 +162,6 @@ export default function ProfilePage() {
             <PostsList
               posts={userPosts}
               currentUserFid={currentUserFid}
-              currentUserBalance={balance}
               emptyMessage="You haven't created any posts yet."
               getUser={userController.getUserByFid.bind(userController)}
               onUpdate={refreshData}
@@ -177,7 +172,6 @@ export default function ProfilePage() {
             <PostsList
               posts={likedPosts}
               currentUserFid={currentUserFid}
-              currentUserBalance={balance}
               emptyMessage="You haven't liked any posts yet."
               getUser={userController.getUserByFid.bind(userController)}
               onUpdate={refreshData}

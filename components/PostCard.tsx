@@ -6,20 +6,18 @@ import Image from 'next/image';
 import { Post, User } from '../model';
 import { postController, userController } from '../controller';
 import CommentSection from './CommentSection';
-import DonationModal from './DonationModal';
+import EnhancedDonationModal from './EnhancedDonationModal';
 import '../styles/post-card.css';
 
 interface PostCardProps {
   post: Post;
   currentUserFid: string;
-  currentUserBalance: number;
   onUpdate: () => void;
 }
 
 export default function PostCard({
   post,
   currentUserFid,
-  currentUserBalance,
   onUpdate,
 }: PostCardProps) {
   const [showDonationModal, setShowDonationModal] = useState(false);
@@ -179,7 +177,7 @@ export default function PostCard({
       {post.donationsReceived > 0 && (
         <div className="post-donations-badge">
           <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
-          {post.donationsReceived} Goodcoins donated
+          {post.donationsReceived} GOOD tokens donated
         </div>
       )}
 
@@ -192,19 +190,18 @@ export default function PostCard({
         />
       )}
 
-      {/* Donation Modal - Rendered via Portal to body */}
-      {showDonationModal && typeof document !== 'undefined' && createPortal(
-        <DonationModal
-          postId={post.id}
-          recipientFid={post.creatorFid}
-          recipientName={creator?.displayName || 'Unknown User'}
-          currentUserFid={currentUserFid}
-          currentUserBalance={currentUserBalance}
-          onClose={() => setShowDonationModal(false)}
-          onDonationComplete={onUpdate}
-        />,
-        document.body
-      )}
+          {/* Enhanced Donation Modal - Rendered via Portal to body */}
+          {showDonationModal && typeof document !== 'undefined' && createPortal(
+              <EnhancedDonationModal
+                postId={post.id}
+                recipientFid={post.creatorFid}
+                recipientName={creator?.displayName || 'Unknown User'}
+                currentUserFid={currentUserFid}
+                onClose={() => setShowDonationModal(false)}
+                onDonationComplete={onUpdate}
+              />,
+              document.body
+            )}
     </div>
   );
 }

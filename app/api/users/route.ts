@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fid, username, displayName, profileImage, balance } = body;
+    const { fid, username, displayName, profileImage } = body;
 
     console.log('POST /api/users - Creating user:', { fid, username, displayName });
 
@@ -52,7 +52,6 @@ export async function POST(request: NextRequest) {
       username,
       displayName,
       profileImage: profileImage || '',
-      balance: balance !== undefined ? balance : 100,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -79,7 +78,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fid, balance, displayName, username } = body;
+    const { fid, displayName, username } = body;
 
     if (!fid) {
       return NextResponse.json(
@@ -98,15 +97,11 @@ export async function PATCH(request: NextRequest) {
       username: string;
       displayName: string;
       profileImage?: string;
-      balance: number;
       createdAt: string;
       updatedAt: string;
     };
 
     // Update only the fields that are provided
-    if (balance !== undefined) {
-      user.balance = balance;
-    }
     if (displayName !== undefined) {
       user.displayName = displayName;
     }

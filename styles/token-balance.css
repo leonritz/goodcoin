@@ -326,6 +326,143 @@
   line-height: 1.5;
 }
 
+/* Enhanced Donation Modal Styles */
+.enhanced-donation-modal {
+  max-width: 600px;
+}
+
+.donation-type-info {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.donation-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-green, #28a745), var(--primary-green-light, #34ce57));
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
+.donation-type-badge span:first-child {
+  font-size: 1.125rem;
+}
+
+.donation-type-selector {
+  margin-bottom: 1.5rem;
+}
+
+.donation-type-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #212529);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.75rem;
+}
+
+.donation-type-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.donation-type-button {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-color, #e9ecef);
+  border-radius: 8px;
+  background: var(--background, #ffffff);
+  color: var(--text-secondary, #6c757d);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.donation-type-button:hover:not(:disabled) {
+  border-color: var(--primary-green, #28a745);
+  color: var(--primary-green, #28a745);
+}
+
+.donation-type-button.active {
+  background: var(--primary-green, #28a745);
+  color: white;
+  border-color: var(--primary-green-dark, #218838);
+}
+
+.donation-type-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.donation-recipient-address {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6c757d);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  margin-top: 0.25rem;
+}
+
+.donation-recipient-warning {
+  font-size: 0.75rem;
+  color: #dc3545;
+  background: #f8d7da;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  border: 1px solid #f5c6cb;
+}
+
+.donation-buy-tokens {
+  background: var(--background-secondary, #f8f9fa);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+  text-align: center;
+  border-left: 4px solid var(--primary-green, #28a745);
+}
+
+.donation-buy-tokens p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary, #6c757d);
+}
+
+.btn-buy-tokens {
+  background: var(--primary-green, #28a745);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-buy-tokens:hover:not(:disabled) {
+  background: var(--primary-green-dark, #218838);
+  transform: translateY(-1px);
+}
+
+.btn-buy-tokens:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .error-message {
   background: #f8d7da;
   color: #721c24;
@@ -388,26 +525,197 @@
   transform: none;
 }
 
+/* Compact Token Purchase Styles */
+.compact-token-purchase {
+  background: var(--background-secondary, #f8f9fa);
+  border: 1px solid var(--border-color, #e9ecef);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.token-balance-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.balance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.balance-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #6c757d);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-green, #28a745);
+  font-variant-numeric: tabular-nums;
+}
+
+.refresh-btn {
+  background: var(--primary-green, #28a745);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: var(--primary-green-dark, #218838);
+  transform: scale(1.05);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.buy-tokens-btn {
+  background: var(--primary-green, #28a745);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.buy-tokens-btn:hover:not(:disabled) {
+  background: var(--primary-green-dark, #218838);
+  transform: translateY(-1px);
+}
+
+.buy-tokens-btn:disabled {
+  background: var(--text-secondary, #6c757d);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Compact Token Balance Styles */
+.compact-token-balance {
+  background: var(--background-secondary, #f8f9fa);
+  border: 1px solid var(--border-color, #e9ecef);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+.compact-token-balance .balance-header {
+  margin-bottom: 0.75rem;
+}
+
+.compact-token-balance .balance-header h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.compact-token-balance .balance-grid {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.compact-token-balance .balance-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, var(--primary-green, #28a745), var(--primary-green-light, #34ce57));
+  color: white;
+  border-radius: 6px;
+  min-width: 80px;
+  box-shadow: 0 2px 4px rgba(40, 167, 69, 0.2);
+}
+
+.compact-token-balance .balance-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.compact-token-balance .balance-symbol {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.compact-token-balance .refresh-button {
+  width: 28px;
+  height: 28px;
+  font-size: 0.875rem;
+}
+
+.btn-buy-tokens-compact:hover:not(:disabled) {
+  background: var(--primary-green-dark, #218838);
+  transform: translateY(-1px);
+}
+
+.btn-buy-tokens-compact:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
   .modal-content {
     margin: 0.5rem;
     max-width: none;
   }
-  
+
   .modal-header, .modal-body {
     padding: 1rem;
   }
-  
+
   .balance-items {
     gap: 0.5rem;
   }
-  
+
   .balance-item {
     padding: 0.5rem;
   }
-  
+
   .balance-value {
     font-size: 1.125rem;
+  }
+
+  .compact-token-balance .balance-grid {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .compact-token-balance .balance-item {
+    min-width: auto;
+    width: 100%;
   }
 }

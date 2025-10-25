@@ -13,7 +13,15 @@ class TransactionController {
     fromFid: string,
     toFid: string,
     amount: number,
-    postId: string
+    postId: string,
+    transactionType: 'virtual' | 'token' | 'purchase' = 'virtual',
+    txHash?: string,
+    fromAddress?: string,
+    toAddress?: string,
+    tokenAmount?: string,
+    tokenSymbol?: string,
+    ethAmount?: string,
+    status: 'pending' | 'confirmed' | 'failed' = 'confirmed'
   ): Promise<{ success: boolean; message: string; transaction?: Transaction }> {
     try {
       const response = await fetch(this.API_BASE, {
@@ -24,6 +32,14 @@ class TransactionController {
           toFid,
           amount,
           postId,
+          transactionType,
+          txHash,
+          fromAddress,
+          toAddress,
+          tokenAmount,
+          tokenSymbol,
+          ethAmount,
+          status,
         }),
       });
 
@@ -42,7 +58,15 @@ class TransactionController {
         txData.fromFid,
         txData.toFid,
         txData.amount,
-        txData.postId
+        txData.postId,
+        txData.transactionType,
+        txData.tokenAmount,
+        txData.tokenSymbol,
+        txData.ethAmount,
+        txData.txHash,
+        txData.fromAddress,
+        txData.toAddress,
+        txData.status
       );
       transaction.createdAt = new Date(txData.createdAt);
 
@@ -78,7 +102,15 @@ class TransactionController {
           txData.fromFid,
           txData.toFid,
           txData.amount,
-          txData.postId
+          txData.postId,
+          txData.transactionType,
+          txData.tokenAmount,
+          txData.tokenSymbol,
+          txData.ethAmount,
+          txData.txHash,
+          txData.fromAddress,
+          txData.toAddress,
+          txData.status
         );
         transaction.createdAt = new Date(txData.createdAt);
         return transaction;
@@ -107,7 +139,15 @@ class TransactionController {
           txData.fromFid,
           txData.toFid,
           txData.amount,
-          txData.postId
+          txData.postId,
+          txData.transactionType,
+          txData.tokenAmount,
+          txData.tokenSymbol,
+          txData.ethAmount,
+          txData.txHash,
+          txData.fromAddress,
+          txData.toAddress,
+          txData.status
         );
         transaction.createdAt = new Date(txData.createdAt);
         return transaction;
@@ -136,7 +176,15 @@ class TransactionController {
           txData.fromFid,
           txData.toFid,
           txData.amount,
-          txData.postId
+          txData.postId,
+          txData.transactionType,
+          txData.tokenAmount,
+          txData.tokenSymbol,
+          txData.ethAmount,
+          txData.txHash,
+          txData.fromAddress,
+          txData.toAddress,
+          txData.status
         );
         transaction.createdAt = new Date(txData.createdAt);
         return transaction;
@@ -165,7 +213,15 @@ class TransactionController {
           txData.fromFid,
           txData.toFid,
           txData.amount,
-          txData.postId
+          txData.postId,
+          txData.transactionType,
+          txData.tokenAmount,
+          txData.tokenSymbol,
+          txData.ethAmount,
+          txData.txHash,
+          txData.fromAddress,
+          txData.toAddress,
+          txData.status
         );
         transaction.createdAt = new Date(txData.createdAt);
         return transaction;

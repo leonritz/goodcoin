@@ -46,8 +46,7 @@ class UserController {
         userData.fid,
         userData.username,
         userData.displayName,
-        userData.profileImage,
-        userData.balance
+        userData.profileImage
       );
       
       // Cache the user immediately
@@ -123,8 +122,7 @@ class UserController {
           userData.fid,
           userData.username,
           userData.displayName,
-          userData.profileImage,
-          userData.balance
+          userData.profileImage
         );
         user.createdAt = new Date(userData.createdAt);
         user.updatedAt = new Date(userData.updatedAt);
@@ -151,50 +149,7 @@ class UserController {
     return requestPromise;
   }
 
-  /**
-   * Update user's balance (used by TransactionController)
-   */
-  async updateUserBalance(fid: string, amount: number): Promise<boolean> {
-    try {
-      const user = await this.getUserByFid(fid);
-      if (!user) return false;
-
-      let newBalance = user.balance;
-      if (amount > 0) {
-        newBalance += amount;
-      } else if (amount < 0) {
-        const deductAmount = Math.abs(amount);
-        if (user.balance < deductAmount) {
-          return false;
-        }
-        newBalance -= deductAmount;
-      }
-
-      const response = await fetch(this.API_BASE, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fid, balance: newBalance }),
-      });
-
-      // Invalidate cache so next fetch gets fresh data
-      if (response.ok) {
-        this.userCache.delete(fid);
-      }
-
-      return response.ok;
-    } catch (error) {
-      console.error('Error updating user balance:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Get user's current balance
-   */
-  async getUserBalance(fid: string): Promise<number> {
-    const user = await this.getUserByFid(fid);
-    return user ? user.balance : 0;
-  }
+  // Removed virtual balance methods - only real token transfers now
 }
 
 // Singleton instance

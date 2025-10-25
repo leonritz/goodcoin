@@ -8,6 +8,15 @@ interface TransactionData {
   amount: number;
   postId: string;
   createdAt: string;
+  // New fields for token transfers
+  transactionType?: 'virtual' | 'token' | 'purchase';
+  tokenAmount?: string;
+  tokenSymbol?: string;
+  ethAmount?: string;
+  txHash?: string;
+  fromAddress?: string;
+  toAddress?: string;
+  status?: 'pending' | 'confirmed' | 'failed';
 }
 
 interface UserData {
@@ -78,7 +87,20 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { fromFid, toFid, amount, postId } = body;
+    const { 
+      fromFid, 
+      toFid, 
+      amount, 
+      postId, 
+      transactionType = 'virtual',
+      tokenAmount,
+      tokenSymbol,
+      ethAmount,
+      txHash,
+      fromAddress,
+      toAddress,
+      status = 'confirmed'
+    } = body;
 
     if (!fromFid || !toFid || !amount || !postId) {
       return NextResponse.json(
@@ -110,31 +132,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    if (donor.balance < amount) {
-      return NextResponse.json({ error: 'Insufficient balance' }, { status: 400 });
-    }
+    // No virtual balance updates - only real token transfers
 
     const transactionId = `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const transaction = {
+    const transaction: TransactionData = {
       id: transactionId,
       fromFid,
       toFid,
       amount,
       postId,
       createdAt: new Date().toISOString(),
+      transactionType,
+      tokenAmount,
+      tokenSymbol,
+      ethAmount,
+      txHash,
+      fromAddress,
+      toAddress,
+      status,
     };
 
-    donor.balance -= amount;
-    donor.updatedAt = new Date().toISOString();
-    recipient.balance += amount;
-    recipient.updatedAt = new Date().toISOString();
-
+    // Update post donations received
     post.donationsReceived += amount;
     post.updatedAt = new Date().toISOString();
 
+    // Save transaction and post data
     await Promise.all([
-      db.set(`users:${fromFid}`, donor),
-      db.set(`users:${toFid}`, recipient),
       db.set(`posts:${postId}`, post),
       db.set(`transactions:${transactionId}`, transaction),
       db.sadd('transactions:all', transactionId),

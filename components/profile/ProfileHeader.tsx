@@ -6,7 +6,6 @@ import { useAuth } from '../../contexts/AuthContext';
 
 interface ProfileHeaderProps {
   user: User;
-  balance: number;
   postsCount: number;
   totalDonated: number;
   totalReceived: number;
@@ -15,7 +14,6 @@ interface ProfileHeaderProps {
 
 export default function ProfileHeader({
   user,
-  balance,
   postsCount,
   totalDonated,
   totalReceived,
@@ -198,21 +196,17 @@ export default function ProfileHeader({
 
       {/* Stats Grid */}
       <div className="profile-stats-grid">
-        <div className="profile-stat-card profile-stat-card-green">
-          <div className="profile-stat-value">{balance}</div>
-          <div className="profile-stat-label">Current Balance</div>
-        </div>
         <div className="profile-stat-card profile-stat-card-pink">
           <div className="profile-stat-value">{postsCount}</div>
           <div className="profile-stat-label">Posts Created</div>
         </div>
         <div className="profile-stat-card profile-stat-card-orange">
           <div className="profile-stat-value">{totalDonated}</div>
-          <div className="profile-stat-label">Goodcoins Donated</div>
+          <div className="profile-stat-label">GOOD Tokens Donated</div>
         </div>
         <div className="profile-stat-card profile-stat-card-purple">
           <div className="profile-stat-value">{totalReceived}</div>
-          <div className="profile-stat-label">Goodcoins Received</div>
+          <div className="profile-stat-label">GOOD Tokens Received</div>
         </div>
       </div>
     </div>

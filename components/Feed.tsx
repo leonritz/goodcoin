@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../contexts/AuthContext';
-import { postController, userController } from '../controller';
+import { postController } from '../controller';
 import { Post } from '../model';
 import PostCard from './PostCard';
 import CreatePostForm from './CreatePostForm';
@@ -19,7 +19,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
   const router = useRouter();
   const { user, disconnect } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
-  const [currentUserBalance, setCurrentUserBalance] = useState(0);
+  // Removed virtual balance tracking
   const [isPostFormExpanded, setIsPostFormExpanded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -29,15 +29,12 @@ export default function Feed({ currentUserFid }: FeedProps) {
       setIsLoading(true);
       const allPosts = await postController.getAllPosts();
       setPosts(allPosts);
-      
-      const balance = await userController.getUserBalance(currentUserFid);
-      setCurrentUserBalance(balance);
     } catch (error) {
       console.error('Error loading feed:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [currentUserFid]);
+  }, []);
 
   const handleProfileClick = () => {
     if (user?.isAuthenticated) {
@@ -81,12 +78,7 @@ export default function Feed({ currentUserFid }: FeedProps) {
               </div>
             )}
             
-            <div className="feed-balance-badge">
-              <span className="feed-balance-text" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
-                {currentUserBalance} Coins
-              </span>
-            </div>
+            {/* Removed virtual balance display */}
             <button
               onClick={handleProfileClick}
               className="feed-profile-button"
@@ -153,7 +145,6 @@ export default function Feed({ currentUserFid }: FeedProps) {
                 key={post.id}
                 post={post}
                 currentUserFid={currentUserFid}
-                currentUserBalance={currentUserBalance}
                 onUpdate={loadFeed}
               />
             ))

@@ -1,12 +1,12 @@
 /**
- * Transaction model representing a Goodcoin donation between users
- * Now supports both virtual GoodCoins and real token transactions
+ * Transaction model representing a GOOD token donation between users
+ * Now supports real token transactions only
  */
 export class Transaction {
   id: string; // Unique transaction identifier
   fromFid: string; // Farcaster ID of the donor
   toFid: string; // Farcaster ID of the recipient
-  amount: number; // Amount of Goodcoins transferred
+  amount: number; // Amount of GOOD tokens transferred
   postId: string; // ID of the post that received the donation
   createdAt: Date;
   
@@ -79,7 +79,7 @@ export class Transaction {
    */
   getFormattedTokenAmount(): string {
     if (!this.tokenAmount || !this.tokenSymbol) {
-      return `${this.amount} GoodCoins`;
+      return `${this.amount} GOOD tokens`;
     }
     return `${this.tokenAmount} ${this.tokenSymbol}`;
   }
@@ -100,7 +100,7 @@ export class Transaction {
     } else if (this.transactionType === 'token') {
       return `Sent ${this.getFormattedTokenAmount()}`;
     } else {
-      return `Sent ${this.amount} GoodCoins`;
+      return `Sent ${this.amount} GOOD tokens`;
     }
   }
 }
