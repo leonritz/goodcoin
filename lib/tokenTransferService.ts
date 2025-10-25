@@ -9,7 +9,12 @@ export class TokenTransferService {
   async transferTokens(
     toAddress: `0x${string}`,
     amount: string,
-    writeContract: any // wagmi's writeContract function
+    writeContract: (config: {
+      address: `0x${string}`;
+      abi: unknown[];
+      functionName: string;
+      args: unknown[];
+    }) => Promise<`0x${string}`>
   ): Promise<{
     success: boolean;
     txHash?: string;
@@ -37,18 +42,20 @@ export class TokenTransferService {
         success: true,
         txHash: txHash as string,
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error transferring tokens:', error);
       
       // Handle specific errors
-      if (error?.message?.includes('User rejected')) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      
+      if (errorMessage.includes('User rejected')) {
         return {
           success: false,
           error: 'Transaction was rejected. Please approve the transaction in your wallet.',
         };
       }
       
-      if (error?.message?.includes('insufficient funds')) {
+      if (errorMessage.includes('insufficient funds')) {
         return {
           success: false,
           error: 'Insufficient funds for gas fees.',
