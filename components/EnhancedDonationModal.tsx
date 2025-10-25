@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { transactionController } from '../controller';
 import { walletService } from '../lib/walletService';
 import { tokenTransferService } from '../lib/tokenTransferService';
@@ -27,16 +27,21 @@ export default function EnhancedDonationModal({
   onDonationComplete,
 }: EnhancedDonationModalProps) {
   const { address, isConnected } = useAccount();
+  const { writeContractAsync } = useWriteContract();
   
   // State management
-  // const [donationType] = useState<'token'>('token'); // Only real tokens - unused for now
   const [amount, setAmount] = useState('');
   const [error, setError] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
-  // const [showSuccess, setShowSuccess] = useState(false); // Unused for now
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const [recipientAddress, setRecipientAddress] = useState<string | null>(null);
   const [tokenBalance, setTokenBalance] = useState('0');
   const [isLoadingBalances, setIsLoadingBalances] = useState(false);
+  
+  // Wait for transaction confirmation
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
 
   const quickAmounts = [5, 10, 25, 50, 100, 200];
 
@@ -68,6 +73,17 @@ export default function EnhancedDonationModal({
   useEffect(() => {
     loadRecipientInfo();
   }, [loadRecipientInfo]);
+
+  // Handle transaction confirmation
+  useEffect(() => {
+    if (isConfirmed && txHash) {
+      // Transaction confirmed! Close modal and refresh
+      setTimeout(() => {
+        onDonationComplete();
+        onClose();
+      }, 1000);
+    }
+  }, [isConfirmed, txHash, onDonationComplete, onClose]);
 
   const handleQuickAmount = (value: number) => {
     setAmount(value.toString());
@@ -107,12 +123,11 @@ export default function EnhancedDonationModal({
         return;
       }
 
-      // For now, simulate the token transfer
-      // In a real implementation, this would call the token contract
+      // Transfer tokens using connected wallet
       const transferResult = await tokenTransferService.transferTokens(
-        address,
         recipientAddress as `0x${string}`,
-        amount
+        amount,
+        writeContractAsync
       );
 
       if (!transferResult.success) {
@@ -121,7 +136,10 @@ export default function EnhancedDonationModal({
         return;
       }
 
-      // Create transaction record
+      // Save the transaction hash for tracking
+      setTxHash(transferResult.txHash as `0x${string}`);
+
+      // Create transaction record with pending status
       const transactionResult = await transactionController.createDonation(
         currentUserFid,
         recipientFid,
@@ -134,7 +152,7 @@ export default function EnhancedDonationModal({
         amount,
         TOKEN_CONFIG.symbol,
         undefined, // No ETH amount for token transfers
-        'confirmed'
+        'pending' // Mark as pending until blockchain confirms
       );
 
       if (!transactionResult.success) {
@@ -143,9 +161,10 @@ export default function EnhancedDonationModal({
         return;
       }
 
-      // Success - close modal and refresh
-      onDonationComplete();
-      onClose();
+      setIsProcessing(false);
+      
+      // Note: Modal stays open to show "Confirming..." state
+      // It will close when transaction is confirmed (see useEffect below)
       
     } catch (error) {
       console.error('Error processing donation:', error);
@@ -173,6 +192,40 @@ export default function EnhancedDonationModal({
 
         {/* Body */}
         <div className="modal-body">
+            {/* Show transaction status if processing */}
+            {(isProcessing || isConfirming) && (
+              <div className="donation-status">
+                <div className="donation-status-spinner">⏳</div>
+                <h3>{isProcessing ? 'Sending Transaction...' : 'Confirming on Blockchain...'}</h3>
+                <p>
+                  {isProcessing 
+                    ? 'Please confirm the transaction in your wallet' 
+                    : 'Waiting for blockchain confirmation...'}
+                </p>
+                {txHash && (
+                  <a 
+                    href={`https://basescan.org/tx/${txHash}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ color: 'var(--primary-green)', fontSize: '0.875rem' }}
+                  >
+                    View on Basescan →
+                  </a>
+                )}
+              </div>
+            )}
+
+            {/* Show success state */}
+            {isConfirmed && (
+              <div className="donation-status">
+                <div className="donation-status-success">✓</div>
+                <h3>Transaction Confirmed!</h3>
+                <p>Your donation has been processed successfully.</p>
+              </div>
+            )}
+
+            {/* Normal donation form */}
+            {!isProcessing && !isConfirming && !isConfirmed && (
             <>
               {/* Donation Type Info */}
               <div className="donation-type-info">
@@ -264,9 +317,11 @@ export default function EnhancedDonationModal({
                 </div>
               )}
             </>
+            )}
         </div>
 
         {/* Footer with Action Buttons */}
+        {!isProcessing && !isConfirming && !isConfirmed && (
         <div className="modal-footer">
             <button
               onClick={onClose}
@@ -283,6 +338,7 @@ export default function EnhancedDonationModal({
               {isProcessing ? 'Processing...' : 'Donate GOOD Tokens'}
             </button>
         </div>
+        )}
       </div>
     </div>
   );

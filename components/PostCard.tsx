@@ -159,7 +159,6 @@ export default function PostCard({
           onClick={() => setShowDonationModal(true)}
           className="post-action-button post-action-donate"
         >
-          <span style={{ fontSize: '1.1em', fontWeight: 'bold' }}>🪙</span>
           <span>Donate</span>
         </button>
 

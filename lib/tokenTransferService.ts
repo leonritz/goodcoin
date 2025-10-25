@@ -1,56 +1,60 @@
-// import { createWalletClient, http, parseUnits, formatUnits } from 'viem'; // For future use
-// import { base } from 'viem/chains';
-// import { privateKeyToAccount } from 'viem/accounts';
-// import { TOKEN_CONFIG, TOKEN_ABI } from './tokenConfig';
-
-// Note: In a real implementation, you'd need to handle private keys securely
-// This is a simplified version for demonstration
-// const publicClient = createWalletClient({
-//   chain: base,
-//   transport: http('https://mainnet.base.org'),
-// });
+import { parseUnits } from 'viem';
+import { TOKEN_CONFIG, TOKEN_ABI } from './tokenConfig';
 
 export class TokenTransferService {
   /**
-   * Transfer GOOD tokens from one address to another
-   * Note: This requires the sender to have approved the contract to spend their tokens
+   * Transfer GOOD tokens from one address to another using connected wallet
+   * This uses the wallet's writeContract function to sign the transaction
    */
   async transferTokens(
-    fromAddress: `0x${string}`,
     toAddress: `0x${string}`,
     amount: string,
-    privateKey?: `0x${string}`
+    writeContract: any // wagmi's writeContract function
   ): Promise<{
     success: boolean;
     txHash?: string;
     error?: string;
   }> {
     try {
-      // For now, we'll simulate the transfer
-      // In a real implementation, you'd use the wallet client to send the transaction
+      // Parse the amount to the correct decimals (18 for GOOD token)
+      const amountInWei = parseUnits(amount, TOKEN_CONFIG.decimals);
       
-      if (!privateKey) {
-        return {
-          success: false,
-          error: 'Private key required for token transfer. Please connect your wallet.',
-        };
-      }
+      console.log('Transferring tokens:', {
+        to: toAddress,
+        amount,
+        amountInWei: amountInWei.toString(),
+      });
 
-      // const account = privateKeyToAccount(privateKey); // For future use
-      
-      // Parse the amount to the correct decimals
-      // const amountInWei = parseUnits(amount, TOKEN_CONFIG.decimals); // For future use
-      
-      // For now, return a simulated transaction
-      // In reality, you'd call the transfer function on the token contract
-      const simulatedTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
+      // Call the transfer function on the ERC20 token contract
+      const txHash = await writeContract({
+        address: TOKEN_CONFIG.contractAddress,
+        abi: TOKEN_ABI,
+        functionName: 'transfer',
+        args: [toAddress, amountInWei],
+      });
       
       return {
         success: true,
-        txHash: simulatedTxHash,
+        txHash: txHash as string,
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error transferring tokens:', error);
+      
+      // Handle specific errors
+      if (error?.message?.includes('User rejected')) {
+        return {
+          success: false,
+          error: 'Transaction was rejected. Please approve the transaction in your wallet.',
+        };
+      }
+      
+      if (error?.message?.includes('insufficient funds')) {
+        return {
+          success: false,
+          error: 'Insufficient funds for gas fees.',
+        };
+      }
+      
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Transfer failed',
