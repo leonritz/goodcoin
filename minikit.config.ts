@@ -51,5 +51,9 @@ export const minikitConfig = {
     deepLink: ROOT_URL,
     appUrl: ROOT_URL,
   },
+  baseBuilder: {
+    ownerAddress: "0x4dC7e2F70DeaC5C670640d5E49E6561b92237e9b"
+  }
+
 } as const;
 
