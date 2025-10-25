@@ -1,8 +1,19 @@
-const ROOT_URL =
-  process.env.NEXT_PUBLIC_URL ||
-  process.env.VERCEL_URL ||
-  process.env.BASE_URL ||
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:3000');
+const ROOT_URL = (() => {
+  // Check for explicit URL first
+  if (process.env.NEXT_PUBLIC_URL) return process.env.NEXT_PUBLIC_URL;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  if (process.env.BASE_URL) return process.env.BASE_URL;
+  
+  // Handle VERCEL_PROJECT_PRODUCTION_URL more carefully
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    const url = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    // If it already has a protocol, use it as is, otherwise add https://
+    return url.startsWith('http') ? url : `https://${url}`;
+  }
+  
+  // Fallback to localhost
+  return 'http://localhost:3000';
+})();
 
 /**
  * MiniApp configuration object. Must follow the Farcaster MiniApp specification.
