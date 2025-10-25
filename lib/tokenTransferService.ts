@@ -11,9 +11,9 @@ export class TokenTransferService {
     amount: string,
     writeContract: (config: {
       address: `0x${string}`;
-      abi: unknown[];
+      abi: readonly unknown[];
       functionName: string;
-      args: unknown[];
+      args: readonly unknown[];
     }) => Promise<`0x${string}`>
   ): Promise<{
     success: boolean;
