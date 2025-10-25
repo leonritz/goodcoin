@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount } from 'wagmi';
 import { tokenService } from '../lib/tokenService';
 import { TOKEN_CONFIG } from '../lib/tokenConfig';
@@ -23,7 +23,7 @@ export default function TokenBalance({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const loadBalances = async (retryCount = 0) => {
+  const loadBalances = useCallback(async (retryCount = 0) => {
     if (!address || !isConnected) return;
 
     setIsLoading(true);
@@ -38,11 +38,11 @@ export default function TokenBalance({
       setEthBalance(ethBal);
       setTokenBalance(tokenBal.formattedBalance);
       setLastUpdated(new Date());
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading balances:', error);
       
       // If it's a rate limit error and we haven't retried too many times, retry
-      if ((error.message?.includes('rate limit') || error.message?.includes('429')) && retryCount < 2) {
+      if ((error instanceof Error && (error.message?.includes('rate limit') || error.message?.includes('429'))) && retryCount < 2) {
         console.log(`Rate limit hit, retrying in ${(retryCount + 1) * 2} seconds...`);
         setError(`Rate limited, retrying in ${(retryCount + 1) * 2} seconds...`);
         setTimeout(() => {
@@ -58,13 +58,13 @@ export default function TokenBalance({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [address, isConnected]);
 
   useEffect(() => {
     if (address && isConnected) {
       loadBalances();
     }
-  }, [address, isConnected]);
+  }, [address, isConnected, loadBalances]);
 
   const formatBalance = (balance: string, decimals: number = 4): string => {
     const num = parseFloat(balance);
@@ -100,7 +100,7 @@ export default function TokenBalance({
         {showRefreshButton && (
           <button 
             className="refresh-button"
-            onClick={loadBalances}
+            onClick={() => loadBalances()}
             disabled={isLoading}
             title="Refresh balances"
           >

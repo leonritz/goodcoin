@@ -1,6 +1,6 @@
-import { createPublicClient, createWalletClient, http, parseEther, formatEther, parseUnits, formatUnits } from 'viem';
+import { createPublicClient, http, formatEther, parseUnits, formatUnits } from 'viem';
 import { base } from 'viem/chains';
-import { privateKeyToAccount } from 'viem/accounts';
+// import { createWalletClient, parseEther, privateKeyToAccount } from 'viem'; // Unused for now
 import { TOKEN_CONFIG, TOKEN_ABI } from './tokenConfig';
 
 // Create public client with single reliable RPC endpoint
@@ -29,7 +29,7 @@ export class TokenService {
   private tokenAbi = TOKEN_ABI;
   
   // Cache for reducing RPC calls
-  private cache = new Map<string, { data: any; timestamp: number }>();
+  private cache = new Map<string, { data: unknown; timestamp: number }>();
   private readonly CACHE_DURATION = 30000; // 30 seconds cache
   
   // Rate limiting
@@ -61,7 +61,7 @@ export class TokenService {
   /**
    * Cache helper
    */
-  private getCachedData(key: string): any | null {
+  private getCachedData(key: string): unknown | null {
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
       return cached.data;
@@ -72,7 +72,7 @@ export class TokenService {
   /**
    * Set cache data
    */
-  private setCachedData(key: string, data: any): void {
+  private setCachedData(key: string, data: unknown): void {
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
@@ -91,7 +91,7 @@ export class TokenService {
     if (cacheKey) {
       const cached = this.getCachedData(cacheKey);
       if (cached !== null) {
-        return cached;
+        return cached as T;
       }
     }
 
@@ -107,14 +107,14 @@ export class TokenService {
       }
       
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Contract call failed:', error);
       
       // For any RPC error, immediately return fallback value
-      if (error.message?.includes('Failed to fetch') || 
+      if (error instanceof Error && (error.message?.includes('Failed to fetch') || 
           error.message?.includes('404') || 
           error.message?.includes('not found') ||
-          error.message?.includes('HTTP request failed')) {
+          error.message?.includes('HTTP request failed'))) {
         console.log('RPC call failed, using fallback value');
         if (fallbackValue !== undefined) {
           return fallbackValue;
@@ -122,7 +122,7 @@ export class TokenService {
       }
       
       // If it's a rate limit error, wait longer and retry once
-      if (error.message?.includes('rate limit') || error.message?.includes('429')) {
+      if (error instanceof Error && (error.message?.includes('rate limit') || error.message?.includes('429'))) {
         console.log('Rate limit hit, waiting 5 seconds before retry...');
         await new Promise(resolve => setTimeout(resolve, 5000));
         
@@ -387,7 +387,7 @@ export class TokenService {
   /**
    * Get offline fallback data
    */
-  private getOfflineFallback(userAddress: `0x${string}`): {
+  private getOfflineFallback(_userAddress: `0x${string}`): {
     balance: string;
     formattedBalance: string;
     symbol: string;

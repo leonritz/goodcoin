@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { parseEther, formatEther } from 'viem';
+// import { parseEther, formatEther } from 'viem'; // Unused for now
 import { tokenService } from '../lib/tokenService';
 import { TOKEN_CONFIG } from '../lib/tokenConfig';
 
@@ -14,24 +14,39 @@ interface TokenPurchaseModalProps {
 
 export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: TokenPurchaseModalProps) {
   const { address, isConnected } = useAccount();
-  const [ethAmount, setEthAmount] = useState(TOKEN_CONFIG.purchase.defaultEthAmount);
+  const [ethAmount, setEthAmount] = useState<string>(TOKEN_CONFIG.purchase.defaultEthAmount);
   const [tokenAmount, setTokenAmount] = useState('0');
   const [ethBalance, setEthBalance] = useState('0');
   const [tokenBalance, setTokenBalance] = useState('0');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const { writeContract, data: hash, isPending, error: contractError } = useWriteContract();
+  const { writeContract: _writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
+
+  const loadBalances = useCallback(async () => {
+    if (!address) return;
+    
+    try {
+      const [ethBal, tokenBal] = await Promise.all([
+        tokenService.getEthBalance(address),
+        tokenService.getTokenBalance(address),
+      ]);
+      setEthBalance(ethBal);
+      setTokenBalance(tokenBal.formattedBalance);
+    } catch (error) {
+      console.error('Error loading balances:', error);
+    }
+  }, [address]);
 
   // Load user balances
   useEffect(() => {
     if (address && isConnected) {
       loadBalances();
     }
-  }, [address, isConnected]);
+  }, [address, isConnected, loadBalances]);
 
   // Calculate token amount when ETH amount changes
   useEffect(() => {
@@ -51,22 +66,7 @@ export default function TokenPurchaseModal({ isOpen, onClose, onSuccess }: Token
         loadBalances();
       }
     }
-  }, [isSuccess, hash, onSuccess, onClose, address]);
-
-  const loadBalances = async () => {
-    if (!address) return;
-    
-    try {
-      const [ethBal, tokenBal] = await Promise.all([
-        tokenService.getEthBalance(address),
-        tokenService.getTokenBalance(address),
-      ]);
-      setEthBalance(ethBal);
-      setTokenBalance(tokenBal.formattedBalance);
-    } catch (error) {
-      console.error('Error loading balances:', error);
-    }
-  };
+  }, [isSuccess, hash, onSuccess, onClose, address, loadBalances]);
 
   const handlePurchase = async () => {
     if (!address || !isConnected) {

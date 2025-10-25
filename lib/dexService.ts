@@ -1,4 +1,5 @@
-import { createPublicClient, http, parseEther, formatEther, parseUnits, formatUnits } from 'viem';
+import { createPublicClient, http } from 'viem';
+// import { parseEther, formatEther, parseUnits, formatUnits } from 'viem'; // Unused for now
 import { base } from 'viem/chains';
 import { TOKEN_CONFIG } from './tokenConfig';
 
@@ -33,22 +34,22 @@ const UNISWAP_V3_ROUTER_ABI = [
   },
 ] as const;
 
-// Quoter ABI for getting quotes
-const QUOTER_ABI = [
-  {
-    inputs: [
-      { name: 'tokenIn', type: 'address' },
-      { name: 'tokenOut', type: 'address' },
-      { name: 'fee', type: 'uint24' },
-      { name: 'amountIn', type: 'uint256' },
-      { name: 'sqrtPriceLimitX96', type: 'uint160' },
-    ],
-    name: 'quoteExactInputSingle',
-    outputs: [{ name: 'amountOut', type: 'uint256' }],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-] as const;
+// Quoter ABI for getting quotes (unused for now)
+// const QUOTER_ABI = [
+//   {
+//     inputs: [
+//       { name: 'tokenIn', type: 'address' },
+//       { name: 'tokenOut', type: 'address' },
+//       { name: 'fee', type: 'uint24' },
+//       { name: 'amountIn', type: 'uint256' },
+//       { name: 'sqrtPriceLimitX96', type: 'uint160' },
+//     ],
+//     name: 'quoteExactInputSingle',
+//     outputs: [{ name: 'amountOut', type: 'uint256' }],
+//     stateMutability: 'nonpayable',
+//     type: 'function',
+//   },
+// ] as const;
 
 const publicClient = createPublicClient({
   chain: base,
@@ -73,7 +74,7 @@ export class DexService {
     minimumReceived: string;
   }> {
     try {
-      const amountIn = parseEther(ethAmount);
+      // const amountIn = parseEther(ethAmount); // Unused for now
       
       // For now, we'll use a simplified calculation
       // In a real implementation, you'd call the Quoter contract
@@ -181,11 +182,11 @@ export class DexService {
   /**
    * Calculate price impact (simplified)
    */
-  private calculatePriceImpact(amountIn: string, amountOut: string): number {
+  private calculatePriceImpact(_amountIn: string, _amountOut: string): number {
     // Simplified price impact calculation
     // In a real implementation, you'd calculate this based on pool liquidity
-    const amountInNum = parseFloat(amountIn);
-    const amountOutNum = parseFloat(amountOut);
+    const amountInNum = parseFloat(_amountIn);
+    // const amountOutNum = parseFloat(_amountOut); // Unused for now
     
     if (amountInNum === 0) return 0;
     
@@ -225,7 +226,7 @@ export class DexService {
   async getSwapRoute(
     tokenIn: `0x${string}`,
     tokenOut: `0x${string}`,
-    amountIn: string
+    _amountIn: string
   ): Promise<{
     route: Array<`0x${string}`>;
     fees: Array<number>;
