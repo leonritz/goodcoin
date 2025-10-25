@@ -32,7 +32,7 @@ export class TokenTransferService {
 
       // Call the transfer function on the ERC20 token contract
       const txHash = await writeContract({
-        address: TOKEN_CONFIG.contractAddress,
+        address: TOKEN_CONFIG.address,
         abi: TOKEN_ABI,
         functionName: 'transfer',
         args: [toAddress, amountInWei],

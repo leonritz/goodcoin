@@ -78,7 +78,7 @@ const transferResult = await tokenTransferService.transferTokens(
 
 // 3. wagmi calls the ERC20 contract
 writeContractAsync({
-  address: TOKEN_CONFIG.contractAddress,
+  address: TOKEN_CONFIG.address,
   abi: TOKEN_ABI,
   functionName: 'transfer',
   args: [toAddress, amountInWei],
@@ -116,7 +116,7 @@ For this to work, you need:
 
 ### 1. GOOD Token Contract Deployed
 - Token must be deployed on Base network
-- Update `TOKEN_CONFIG.contractAddress` in `lib/tokenConfig.ts`
+- Update `TOKEN_CONFIG.address` in `lib/tokenConfig.ts`
 
 ### 2. Users Must Have:
 - ✅ Connected wallet (MetaMask, Coinbase Wallet, etc.)
@@ -245,7 +245,7 @@ Each donation creates a transaction record:
 Before going live:
 
 - [ ] Deploy GOOD token contract on Base
-- [ ] Update `TOKEN_CONFIG.contractAddress`
+- [ ] Update `TOKEN_CONFIG.address`
 - [ ] Test donations on testnet
 - [ ] Verify gas costs are acceptable
 - [ ] Test all error scenarios
